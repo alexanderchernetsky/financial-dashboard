@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
 import {
   Box,
@@ -12,17 +12,29 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  LinearProgress,
   Card,
-  CardContent
+  CardContent,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  TextField,
+  IconButton
 } from '@mui/material';
 import {
   TrendingUp,
   TrendingDown,
-  AttachMoney
+  AttachMoney,
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon
 } from '@mui/icons-material';
 
 const FinancialDashboard = () => {
-  const data = [
+  const initialData = [
     { date: "02.11.23", fiat: 14659, bonds: 0, etfs: 0, crypto:0, netWorth: 14659 },
     { date: "02.12.23", fiat: 19218, bonds: 0, etfs: 0, crypto:0, netWorth: 19218 },
     { date: "02.01.24", fiat: 25591, bonds: 0, etfs: 0, crypto:0, netWorth: 25591 },
@@ -40,15 +52,50 @@ const FinancialDashboard = () => {
     { date: "03.01.25", fiat: 39639, bonds: 7896, etfs: 4654, crypto: 15934, netWorth: 69761 },
     { date: "03.02.25", fiat: 9556, bonds: 7920, etfs: 4700, crypto: 13617, netWorth: 37764 },
     { date: "01.03.25", fiat: 8424, bonds: 7920, etfs: 4578, crypto: 11338, netWorth: 34231 },
-  ]; // todo: add comments as a tooltip
+  ];
 
-  // Add calculated fields for change and percent change
-  for (let i = 1; i < data.length; i++) {
-    data[i].change = data[i].netWorth - data[i-1].netWorth;
-    data[i].changePercent = ((data[i].netWorth - data[i-1].netWorth) / data[i-1].netWorth * 100).toFixed(1);
-  }
-  data[0].change = 0;
-  data[0].changePercent = 0;
+  // State for portfolio data
+  const [portfolioData, setPortfolioData] = useState(initialData);
+
+  // States for add/edit dialog
+  const [openDialog, setOpenDialog] = useState(false);
+  const [editIndex, setEditIndex] = useState(-1);
+  const [formData, setFormData] = useState({
+    date: '',
+    fiat: 0,
+    bonds: 0,
+    etfs: 0,
+    crypto: 0
+  });
+
+  // States for delete confirmation
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [deleteIndex, setDeleteIndex] = useState(-1);
+
+  // Process data (calculate changes and percentages)
+  const processedData = React.useMemo(() => {
+    const data = [...portfolioData].sort((a, b) => {
+      // Convert date strings to Date objects for sorting
+      const dateA = a.date.split('.').reverse().join('-');
+      const dateB = b.date.split('.').reverse().join('-');
+      return new Date(dateA) - new Date(dateB);
+    });
+
+    // Calculate netWorth for each entry
+    data.forEach(entry => {
+      entry.netWorth = entry.fiat + entry.bonds + entry.etfs + entry.crypto;
+    });
+
+    // Calculate change and percent change
+    for (let i = 1; i < data.length; i++) {
+      data[i].change = data[i].netWorth - data[i-1].netWorth;
+      data[i].changePercent = ((data[i].netWorth - data[i-1].netWorth) / data[i-1].netWorth * 100).toFixed(1);
+    }
+    data[0].change = 0;
+    data[0].changePercent = 0;
+
+    return data;
+  }, [portfolioData]);
 
   const formatCurrency = (value) => {
     return `$${value.toLocaleString()}`;
@@ -62,16 +109,16 @@ const FinancialDashboard = () => {
   };
 
   // Get current month data
-  const currentMonthData = data[data.length - 1];
-  const previousMonthData = data[data.length - 2];
+  const currentMonthData = processedData[processedData.length - 1];
+  const previousMonthData = processedData[processedData.length - 2] || {...currentMonthData, netWorth: currentMonthData.netWorth};
 
   // Calculate monthly change
   const monthlyChange = currentMonthData.netWorth - previousMonthData.netWorth;
-  const monthlyChangePercent = (monthlyChange / previousMonthData.netWorth * 100).toFixed(1);
+  const monthlyChangePercent = (monthlyChange / (previousMonthData.netWorth || 1) * 100).toFixed(1);
 
   // Calculate total growth from start
-  const totalGrowth = currentMonthData.netWorth - data[0].netWorth;
-  const totalGrowthPercent = (totalGrowth / data[0].netWorth * 100).toFixed(1);
+  const totalGrowth = currentMonthData.netWorth - (processedData[0]?.netWorth || 0);
+  const totalGrowthPercent = (totalGrowth / (processedData[0]?.netWorth || 1) * 100).toFixed(1);
 
   // Prepare data for asset distribution pie chart
   const assetDistributionData = [
@@ -93,6 +140,84 @@ const FinancialDashboard = () => {
           {`${assetDistributionData[index].name} (${(percent * 100).toFixed(1)}%)`}
         </text>
     );
+  };
+
+  // Dialog handlers
+  const handleOpenAddDialog = () => {
+    setEditIndex(-1);
+    setFormData({
+      date: new Date().toLocaleDateString('en-GB', {day: '2-digit', month: '2-digit', year: '2-digit'}).replace(/\//g, '.'),
+      fiat: 0,
+      bonds: 0,
+      etfs: 0,
+      crypto: 0
+    });
+    setOpenDialog(true);
+  };
+
+  const handleOpenEditDialog = (index) => {
+    setEditIndex(index);
+    setFormData({
+      date: portfolioData[index].date,
+      fiat: portfolioData[index].fiat,
+      bonds: portfolioData[index].bonds,
+      etfs: portfolioData[index].etfs,
+      crypto: portfolioData[index].crypto
+    });
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: name === 'date' ? value : Number(value)
+    });
+  };
+
+  const handleSaveData = () => {
+    if (editIndex >= 0) {
+      // Edit existing entry
+      const updatedData = [...portfolioData];
+      updatedData[editIndex] = {
+        ...updatedData[editIndex],
+        ...formData,
+        netWorth: formData.fiat + formData.bonds + formData.etfs + formData.crypto
+      };
+      setPortfolioData(updatedData);
+    } else {
+      // Add new entry
+      const newEntry = {
+        ...formData,
+        netWorth: formData.fiat + formData.bonds + formData.etfs + formData.crypto,
+        change: 0,
+        changePercent: 0
+      };
+      setPortfolioData([...portfolioData, newEntry]);
+    }
+    setOpenDialog(false);
+  };
+
+  // Delete handlers
+  const handleOpenDeleteDialog = (index) => {
+    setDeleteIndex(index);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteIndex >= 0) {
+      const updatedData = portfolioData.filter((_, index) => index !== deleteIndex);
+      setPortfolioData(updatedData);
+    }
+    setOpenDeleteDialog(false);
   };
 
   return (
@@ -184,7 +309,7 @@ const FinancialDashboard = () => {
                       color: totalGrowth >= 0 ? 'success.main' : 'error.main'
                     }}
                 >
-                  {totalGrowth >= 0 ? '+' : ''}{totalGrowthPercent}% since {data[0].date}
+                  {totalGrowth >= 0 ? '+' : ''}{totalGrowthPercent}% since {processedData[0]?.date || 'start'}
                 </Typography>
               </CardContent>
             </Card>
@@ -198,7 +323,7 @@ const FinancialDashboard = () => {
           </Typography>
           <Box sx={{ height: 300 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data}
+              <AreaChart data={processedData}
                          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
@@ -218,7 +343,7 @@ const FinancialDashboard = () => {
           </Typography>
           <Box sx={{ height: 300 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.slice(1)}>
+              <BarChart data={processedData.slice(1)}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis tickFormatter={(value) => `$${value / 1000}k`} />
@@ -246,7 +371,7 @@ const FinancialDashboard = () => {
           </Typography>
           <Box sx={{ height: 300 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data}>
+              <BarChart data={processedData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis tickFormatter={(value) => `$${value / 1000}k`} />
@@ -261,7 +386,7 @@ const FinancialDashboard = () => {
           </Box>
         </Paper>
 
-        {/* Asset Distribution - Now with Pie Chart */}
+        {/* Asset Distribution - Pie Chart */}
         <Paper sx={{ p: 3, mb: 4, boxShadow: 3 }}>
           <Typography variant="h6" component="h2" gutterBottom>
             Current Asset Distribution
@@ -302,11 +427,20 @@ const FinancialDashboard = () => {
           </Box>
         </Paper>
 
-        {/* Summary Table */}
+        {/* Summary Table with Add/Edit/Delete */}
         <Paper sx={{ p: 3, mb: 4, boxShadow: 3, overflowX: 'auto' }}>
-          <Typography variant="h6" component="h2" gutterBottom>
-            Portfolio Summary Table
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6" component="h2">
+              Portfolio Summary Table
+            </Typography>
+            <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleOpenAddDialog}
+            >
+              Add Entry
+            </Button>
+          </Box>
           <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
             <Table sx={{ minWidth: 650 }} size="small">
               <TableHead>
@@ -319,11 +453,12 @@ const FinancialDashboard = () => {
                   <TableCell align="right">Net Worth ($)</TableCell>
                   <TableCell align="right">Change ($)</TableCell>
                   <TableCell align="right">Change (%)</TableCell>
+                  <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.map((row) => (
-                    <TableRow key={row.date} hover>
+                {processedData.map((row, index) => (
+                    <TableRow key={`${row.date}-${index}`} hover>
                       <TableCell component="th" scope="row">{row.date}</TableCell>
                       <TableCell align="right">{row.fiat.toLocaleString()}</TableCell>
                       <TableCell align="right">{row.bonds.toLocaleString()}</TableCell>
@@ -342,12 +477,131 @@ const FinancialDashboard = () => {
                       >
                         {row.changePercent > 0 ? '+' : ''}{row.changePercent}%
                       </TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={() => handleOpenEditDialog(portfolioData.findIndex(item =>
+                                item.date === row.date &&
+                                item.fiat === row.fiat &&
+                                item.bonds === row.bonds &&
+                                item.etfs === row.etfs &&
+                                item.crypto === row.crypto
+                            ))}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => handleOpenDeleteDialog(portfolioData.findIndex(item =>
+                                item.date === row.date &&
+                                item.fiat === row.fiat &&
+                                item.bonds === row.bonds &&
+                                item.etfs === row.etfs &&
+                                item.crypto === row.crypto
+                            ))}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
         </Paper>
+
+        {/* Add/Edit Dialog */}
+        <Dialog open={openDialog} onClose={handleCloseDialog}>
+          <DialogTitle>{editIndex >= 0 ? 'Edit Entry' : 'Add New Entry'}</DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ mb: 2 }}>
+              {editIndex >= 0
+                  ? 'Update the values for this portfolio entry.'
+                  : 'Enter the details for your new portfolio entry.'}
+            </DialogContentText>
+            <TextField
+                autoFocus
+                margin="dense"
+                name="date"
+                label="Date (DD.MM.YY)"
+                fullWidth
+                variant="outlined"
+                value={formData.date}
+                onChange={handleInputChange}
+                sx={{ mb: 2 }}
+            />
+            <TextField
+                margin="dense"
+                name="fiat"
+                label="Fiat ($)"
+                type="number"
+                fullWidth
+                variant="outlined"
+                value={formData.fiat}
+                onChange={handleInputChange}
+                sx={{ mb: 2 }}
+            />
+            <TextField
+                margin="dense"
+                name="bonds"
+                label="Bonds ($)"
+                type="number"
+                fullWidth
+                variant="outlined"
+                value={formData.bonds}
+                onChange={handleInputChange}
+                sx={{ mb: 2 }}
+            />
+            <TextField
+                margin="dense"
+                name="etfs"
+                label="ETFs ($)"
+                type="number"
+                fullWidth
+                variant="outlined"
+                value={formData.etfs}
+                onChange={handleInputChange}
+                sx={{ mb: 2 }}
+            />
+            <TextField
+                margin="dense"
+                name="crypto"
+                label="Crypto ($)"
+                type="number"
+                fullWidth
+                variant="outlined"
+                value={formData.crypto}
+                onChange={handleInputChange}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>Cancel</Button>
+            <Button onClick={handleSaveData} variant="contained">
+              {editIndex >= 0 ? 'Update' : 'Add'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog
+            open={openDeleteDialog}
+            onClose={handleCloseDeleteDialog}
+        >
+          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Are you sure you want to delete this entry? This action cannot be undone.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
+            <Button onClick={handleConfirmDelete} color="error" variant="contained">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
   );
 };

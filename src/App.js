@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
 import {
   Box,
   Container,
@@ -12,7 +12,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  LinearProgress,
   Card,
   CardContent
 } from '@mui/material';
@@ -41,7 +40,7 @@ const FinancialDashboard = () => {
     { date: "03.01.25", fiat: 39639, bonds: 7896, etfs: 4654, crypto: 15934, netWorth: 69761 },
     { date: "03.02.25", fiat: 9556, bonds: 7920, etfs: 4700, crypto: 13617, netWorth: 37764 },
     { date: "01.03.25", fiat: 8424, bonds: 7920, etfs: 4578, crypto: 11338, netWorth: 34231 },
-  ];
+  ]; // todo: add comments as a tooltip
 
   // Add calculated fields for change and percent change
   for (let i = 1; i < data.length; i++) {
@@ -73,6 +72,28 @@ const FinancialDashboard = () => {
   // Calculate total growth from start
   const totalGrowth = currentMonthData.netWorth - data[0].netWorth;
   const totalGrowthPercent = (totalGrowth / data[0].netWorth * 100).toFixed(1);
+
+  // Prepare data for asset distribution pie chart
+  const assetDistributionData = [
+    { name: 'Fiat', value: currentMonthData.fiat, color: assetColors.fiat },
+    { name: 'Government Bonds', value: currentMonthData.bonds, color: assetColors.bonds },
+    { name: 'ETFs', value: currentMonthData.etfs, color: assetColors.etfs },
+    { name: 'Crypto', value: currentMonthData.crypto, color: assetColors.crypto },
+  ];
+
+  // Custom label for pie chart
+  const RADIAN = Math.PI / 180;
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+    const radius = outerRadius * 1.1;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+        <text x={x} y={y} fill={assetDistributionData[index].color} textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+          {`${assetDistributionData[index].name} (${(percent * 100).toFixed(1)}%)`}
+        </text>
+    );
+  };
 
   return (
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -240,51 +261,45 @@ const FinancialDashboard = () => {
           </Box>
         </Paper>
 
-        {/* Asset Distribution */}
+        {/* Asset Distribution - Now with Pie Chart */}
         <Paper sx={{ p: 3, mb: 4, boxShadow: 3 }}>
           <Typography variant="h6" component="h2" gutterBottom>
             Current Asset Distribution
           </Typography>
-          <Grid container spacing={3} sx={{ mt: 1 }}>
-            {[
-              { name: 'Fiat', key: 'fiat', color: assetColors.fiat },
-              { name: 'Government Bonds', key: 'bonds', color: assetColors.bonds },
-              { name: 'ETFs', key: 'etfs', color: assetColors.etfs },
-              { name: 'Crypto', key: 'crypto', color: assetColors.crypto },
-            ].map((asset) => {
-              const lastData = data[data.length - 1];
-              const value = lastData[asset.key];
-              const percentage = ((value / lastData.netWorth) * 100).toFixed(1);
-
-              return (
-                  <Grid item xs={12} md={4} key={asset.key}>
-                    <Paper sx={{ p: 2, boxShadow: 1 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="body1">{asset.name}</Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {percentage}%
-                        </Typography>
-                      </Box>
-                      <Typography variant="h6">{formatCurrency(value)}</Typography>
-                      <Box sx={{ width: '100%', mt: 1 }}>
-                        <LinearProgress
-                            variant="determinate"
-                            value={Number(percentage)}
-                            sx={{
-                              height: 8,
-                              borderRadius: 5,
-                              bgcolor: 'rgba(0,0,0,0.1)',
-                              '& .MuiLinearProgress-bar': {
-                                bgcolor: asset.color
-                              }
-                            }}
-                        />
-                      </Box>
-                    </Paper>
-                  </Grid>
-              );
-            })}
-          </Grid>
+          <Box sx={{ height: 400 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                    data={assetDistributionData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={true}
+                    label={renderCustomizedLabel}
+                    outerRadius={130}
+                    fill="#8884d8"
+                    dataKey="value"
+                >
+                  {assetDistributionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                    formatter={(value, name, props) => {
+                      return [
+                        formatCurrency(value),
+                        name,
+                        `${((value / currentMonthData.netWorth) * 100).toFixed(1)}%`
+                      ];
+                    }}
+                />
+                <Legend
+                    formatter={(value, entry, index) => {
+                      return `${value}: ${formatCurrency(assetDistributionData[index].value)} (${((assetDistributionData[index].value / currentMonthData.netWorth) * 100).toFixed(1)}%)`;
+                    }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </Box>
         </Paper>
 
         {/* Summary Table */}
@@ -300,6 +315,7 @@ const FinancialDashboard = () => {
                   <TableCell align="right">Fiat ($)</TableCell>
                   <TableCell align="right">Bonds ($)</TableCell>
                   <TableCell align="right">ETFs ($)</TableCell>
+                  <TableCell align="right">Crypto ($)</TableCell>
                   <TableCell align="right">Net Worth ($)</TableCell>
                   <TableCell align="right">Change ($)</TableCell>
                   <TableCell align="right">Change (%)</TableCell>
@@ -312,6 +328,7 @@ const FinancialDashboard = () => {
                       <TableCell align="right">{row.fiat.toLocaleString()}</TableCell>
                       <TableCell align="right">{row.bonds.toLocaleString()}</TableCell>
                       <TableCell align="right">{row.etfs.toLocaleString()}</TableCell>
+                      <TableCell align="right">{row.crypto.toLocaleString()}</TableCell>
                       <TableCell align="right" sx={{ fontWeight: 'medium' }}>{row.netWorth.toLocaleString()}</TableCell>
                       <TableCell
                           align="right"

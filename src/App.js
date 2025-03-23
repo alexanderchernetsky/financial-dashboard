@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
 import {
   Box,
@@ -22,7 +22,9 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
-  IconButton
+  IconButton,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import {
   TrendingUp,
@@ -30,7 +32,8 @@ import {
   AttachMoney,
   Add as AddIcon,
   Delete as DeleteIcon,
-  Edit as EditIcon
+  Edit as EditIcon,
+  Save as SaveIcon
 } from '@mui/icons-material';
 
 const FinancialDashboard = () => {
@@ -56,6 +59,12 @@ const FinancialDashboard = () => {
 
   // State for portfolio data
   const [portfolioData, setPortfolioData] = useState(initialData);
+  const [isLoading, setIsLoading] = useState(true);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
   // States for add/edit dialog
   const [openDialog, setOpenDialog] = useState(false);
@@ -67,6 +76,61 @@ const FinancialDashboard = () => {
     etfs: 0,
     crypto: 0
   });
+
+  // Load data from localStorage on component mount
+  useEffect(() => {
+    const loadData = () => {
+      try {
+        const savedData = localStorage.getItem('financialPortfolioData');
+        if (savedData) {
+          setPortfolioData(JSON.parse(savedData));
+          setSnackbar({
+            open: true,
+            message: 'Data loaded successfully from local storage',
+            severity: 'info'
+          });
+        } else {
+          // If no saved data, use the initial data
+          setPortfolioData(initialData);
+          // Save initial data to localStorage
+          localStorage.setItem('financialPortfolioData', JSON.stringify(initialData));
+          setSnackbar({
+            open: true,
+            message: 'Using default data (saved to local storage)',
+            severity: 'info'
+          });
+        }
+      } catch (error) {
+        console.error('Error loading data from localStorage:', error);
+        setPortfolioData(initialData);
+        setSnackbar({
+          open: true,
+          message: 'Error loading data: Using default dataset',
+          severity: 'error'
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Save data to localStorage whenever portfolioData changes
+  useEffect(() => {
+    if (!isLoading) {
+      try {
+        localStorage.setItem('financialPortfolioData', JSON.stringify(portfolioData));
+      } catch (error) {
+        console.error('Error saving data to localStorage:', error);
+        setSnackbar({
+          open: true,
+          message: 'Error saving data to local storage',
+          severity: 'error'
+        });
+      }
+    }
+  }, [portfolioData, isLoading]);
 
   // States for delete confirmation
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -189,6 +253,11 @@ const FinancialDashboard = () => {
         netWorth: formData.fiat + formData.bonds + formData.etfs + formData.crypto
       };
       setPortfolioData(updatedData);
+      setSnackbar({
+        open: true,
+        message: 'Entry updated successfully',
+        severity: 'success'
+      });
     } else {
       // Add new entry
       const newEntry = {
@@ -198,9 +267,15 @@ const FinancialDashboard = () => {
         changePercent: 0
       };
       setPortfolioData([...portfolioData, newEntry]);
+      setSnackbar({
+        open: true,
+        message: 'New entry added successfully',
+        severity: 'success'
+      });
     }
     setOpenDialog(false);
   };
+
 
   // Delete handlers
   const handleOpenDeleteDialog = (index) => {
@@ -218,6 +293,17 @@ const FinancialDashboard = () => {
       setPortfolioData(updatedData);
     }
     setOpenDeleteDialog(false);
+  };
+
+  // Snackbar handlers
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbar({
+      ...snackbar,
+      open: false
+    });
   };
 
   return (
@@ -602,6 +688,18 @@ const FinancialDashboard = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
+        {/* Snackbar for notifications */}
+        <Snackbar
+            open={snackbar.open}
+            autoHideDuration={4000}
+            onClose={handleCloseSnackbar}
+            message={snackbar.message}
+            anchorOrigin={
+            { vertical: 'top', horizontal: 'center' }
+            }
+        />
+
       </Container>
   );
 };

@@ -36,6 +36,7 @@ import {
 const goldWorthUSD = 1972;
 
 const FinancialDashboard = () => {
+  // todo: use the database
   const initialData = [
     { date: "02.11.23", fiat: 14659, bonds: 0, etfs: 0, crypto:0, gold: goldWorthUSD, netWorth: 14659 },
     { date: "02.12.23", fiat: 19218, bonds: 0, etfs: 0, crypto:0, gold: goldWorthUSD, netWorth: 19218 },
@@ -218,16 +219,6 @@ const FinancialDashboard = () => {
       });
     }
     setOpenDialog(false);
-  };
-
-  // Reset Data to Initial
-  const handleResetData = () => {
-    setPortfolioData(initialData);
-    setSnackbar({
-      open: true,
-      message: 'Data reset to initial values',
-      severity: 'info'
-    });
   };
 
   // Delete handlers
@@ -473,13 +464,6 @@ const FinancialDashboard = () => {
               Portfolio Summary Table
             </Typography>
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button
-                  variant="outlined"
-                  color="secondary"
-                  onClick={handleResetData}
-              >
-                Reset Data
-              </Button>
               <Button
                   variant="contained"
                   startIcon={<AddIcon />}

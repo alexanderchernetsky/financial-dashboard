@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
 import {
   Box,
@@ -12,7 +12,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  LinearProgress,
   Card,
   CardContent,
   Button,
@@ -23,8 +22,7 @@ import {
   DialogTitle,
   TextField,
   IconButton,
-  Snackbar,
-  Alert
+  Snackbar
 } from '@mui/material';
 import {
   TrendingUp,
@@ -32,35 +30,35 @@ import {
   AttachMoney,
   Add as AddIcon,
   Delete as DeleteIcon,
-  Edit as EditIcon,
-  Save as SaveIcon
+  Edit as EditIcon
 } from '@mui/icons-material';
+
+const goldWorthUSD = 1972;
 
 const FinancialDashboard = () => {
   const initialData = [
-    { date: "02.11.23", fiat: 14659, bonds: 0, etfs: 0, crypto:0, netWorth: 14659 },
-    { date: "02.12.23", fiat: 19218, bonds: 0, etfs: 0, crypto:0, netWorth: 19218 },
-    { date: "02.01.24", fiat: 25591, bonds: 0, etfs: 0, crypto:0, netWorth: 25591 },
-    { date: "02.02.24", fiat: 28545, bonds: 0, etfs: 0, crypto:0, netWorth: 28545 },
-    { date: "02.03.24", fiat: 31312, bonds: 0, etfs: 0, crypto:0, netWorth: 31311 },
-    { date: "01.04.24", fiat: 14628, bonds: 5650, etfs: 545, crypto: 12380, netWorth: 34650 },
-    { date: "06.05.24", fiat: 15298, bonds: 5650, etfs: 1085, crypto: 11479, netWorth: 35074 },
-    { date: "02.06.24", fiat: 18344, bonds: 5650, etfs: 1085, crypto: 12711, netWorth: 39372 },
-    { date: "02.07.24", fiat: 19232, bonds: 5650, etfs: 1724,  crypto: 11284, netWorth: 39453 },
-    { date: "02.08.24", fiat: 21159, bonds: 5650, etfs: 2243, crypto: 11569, netWorth: 42183 },
-    { date: "01.09.24", fiat: 22143, bonds: 5650, etfs: 2290, crypto: 9599, netWorth: 41318 },
-    { date: "01.10.24", fiat: 23598, bonds: 8502, etfs: 2411, crypto: 11052,  netWorth: 47201 },
-    { date: "02.11.24", fiat: 24696, bonds: 8175, etfs: 3669,  crypto: 11640, netWorth: 49816 },
-    { date: "01.12.24", fiat: 33175, bonds: 9960, etfs: 4654,  crypto: 16852, netWorth: 67559 },
-    { date: "03.01.25", fiat: 39639, bonds: 7896, etfs: 4654, crypto: 15934, netWorth: 69761 },
-    { date: "03.02.25", fiat: 9556, bonds: 7920, etfs: 4700, crypto: 13617, netWorth: 37764 },
-    { date: "01.03.25", fiat: 8424, bonds: 7920, etfs: 4578, crypto: 11338, netWorth: 34231 },
-    { date: "01.04.25", fiat: 8603, bonds: 9698, etfs: 4743, crypto: 10949, netWorth: 35965 },
+    { date: "02.11.23", fiat: 14659, bonds: 0, etfs: 0, crypto:0, gold: goldWorthUSD, netWorth: 14659 },
+    { date: "02.12.23", fiat: 19218, bonds: 0, etfs: 0, crypto:0, gold: goldWorthUSD, netWorth: 19218 },
+    { date: "02.01.24", fiat: 25591, bonds: 0, etfs: 0, crypto:0, gold: goldWorthUSD, netWorth: 25591 },
+    { date: "02.02.24", fiat: 28545, bonds: 0, etfs: 0, crypto:0, gold: goldWorthUSD, netWorth: 28545 },
+    { date: "02.03.24", fiat: 31312, bonds: 0, etfs: 0, crypto:0, gold: goldWorthUSD, netWorth: 31311 },
+    { date: "01.04.24", fiat: 14628, bonds: 5650, etfs: 545, crypto: 12380, gold: goldWorthUSD, netWorth: 34650 },
+    { date: "06.05.24", fiat: 15298, bonds: 5650, etfs: 1085, crypto: 11479, gold: goldWorthUSD, netWorth: 35074 },
+    { date: "02.06.24", fiat: 18344, bonds: 5650, etfs: 1085, crypto: 12711, gold: goldWorthUSD, netWorth: 39372 },
+    { date: "02.07.24", fiat: 19232, bonds: 5650, etfs: 1724,  crypto: 11284, gold: goldWorthUSD, netWorth: 39453 },
+    { date: "02.08.24", fiat: 21159, bonds: 5650, etfs: 2243, crypto: 11569, gold: goldWorthUSD, netWorth: 42183 },
+    { date: "01.09.24", fiat: 22143, bonds: 5650, etfs: 2290, crypto: 9599, gold: goldWorthUSD, netWorth: 41318 },
+    { date: "01.10.24", fiat: 23598, bonds: 8502, etfs: 2411, crypto: 11052,  gold: goldWorthUSD, netWorth: 47201 },
+    { date: "02.11.24", fiat: 24696, bonds: 8175, etfs: 3669,  crypto: 11640, gold: goldWorthUSD, netWorth: 49816 },
+    { date: "01.12.24", fiat: 33175, bonds: 9960, etfs: 4654,  crypto: 16852, gold: goldWorthUSD, netWorth: 67559 },
+    { date: "03.01.25", fiat: 39639, bonds: 7896, etfs: 4654, crypto: 15934, gold: goldWorthUSD, netWorth: 69761 },
+    { date: "03.02.25", fiat: 9556, bonds: 7920, etfs: 4700, crypto: 13617, gold: goldWorthUSD, netWorth: 37764 },
+    { date: "01.03.25", fiat: 8424, bonds: 7920, etfs: 4578, crypto: 11338, gold: goldWorthUSD, netWorth: 34231 },
+    { date: "01.04.25", fiat: 8603, bonds: 9698, etfs: 4743, crypto: 10949, gold: goldWorthUSD, netWorth: 35965 },
   ];
 
   // State for portfolio data
   const [portfolioData, setPortfolioData] = useState(initialData);
-  const [isLoading, setIsLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -77,61 +75,6 @@ const FinancialDashboard = () => {
     etfs: 0,
     crypto: 0
   });
-
-  // Load data from localStorage on component mount
-  useEffect(() => {
-    const loadData = () => {
-      try {
-        const savedData = localStorage.getItem('financialPortfolioData');
-        if (savedData) {
-          setPortfolioData(JSON.parse(savedData));
-          setSnackbar({
-            open: true,
-            message: 'Data loaded successfully from local storage',
-            severity: 'info'
-          });
-        } else {
-          // If no saved data, use the initial data
-          setPortfolioData(initialData);
-          // Save initial data to localStorage
-          localStorage.setItem('financialPortfolioData', JSON.stringify(initialData));
-          setSnackbar({
-            open: true,
-            message: 'Using default data (saved to local storage)',
-            severity: 'info'
-          });
-        }
-      } catch (error) {
-        console.error('Error loading data from localStorage:', error);
-        setPortfolioData(initialData);
-        setSnackbar({
-          open: true,
-          message: 'Error loading data: Using default dataset',
-          severity: 'error'
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-  }, []);
-
-  // Save data to localStorage whenever portfolioData changes
-  useEffect(() => {
-    if (!isLoading) {
-      try {
-        localStorage.setItem('financialPortfolioData', JSON.stringify(portfolioData));
-      } catch (error) {
-        console.error('Error saving data to localStorage:', error);
-        setSnackbar({
-          open: true,
-          message: 'Error saving data to local storage',
-          severity: 'error'
-        });
-      }
-    }
-  }, [portfolioData, isLoading]);
 
   // States for delete confirmation
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -277,6 +220,15 @@ const FinancialDashboard = () => {
     setOpenDialog(false);
   };
 
+  // Reset Data to Initial
+  const handleResetData = () => {
+    setPortfolioData(initialData);
+    setSnackbar({
+      open: true,
+      message: 'Data reset to initial values',
+      severity: 'info'
+    });
+  };
 
   // Delete handlers
   const handleOpenDeleteDialog = (index) => {
@@ -520,13 +472,22 @@ const FinancialDashboard = () => {
             <Typography variant="h6" component="h2">
               Portfolio Summary Table
             </Typography>
-            <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleOpenAddDialog}
-            >
-              Add Entry
-            </Button>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={handleResetData}
+              >
+                Reset Data
+              </Button>
+              <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={handleOpenAddDialog}
+              >
+                Add Entry
+              </Button>
+            </Box>
           </Box>
           <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
             <Table sx={{ minWidth: 650 }} size="small">
@@ -695,12 +656,12 @@ const FinancialDashboard = () => {
             open={snackbar.open}
             autoHideDuration={4000}
             onClose={handleCloseSnackbar}
-            message={snackbar.message}
-            anchorOrigin={
-            { vertical: 'top', horizontal: 'center' }
-            }
-        />
-
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Box sx={{ bgcolor: snackbar.severity === 'error' ? 'error.main' : snackbar.severity === 'success' ? 'success.main' : 'info.main', color: 'white', px: 3, py: 2, borderRadius: 1 }}>
+            {snackbar.message}
+          </Box>
+        </Snackbar>
       </Container>
   );
 };

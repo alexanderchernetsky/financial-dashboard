@@ -37,6 +37,7 @@ const goldWorthUSD = 1972;
 
 const FinancialDashboard = () => {
   // todo: use the database
+  // todo: add gold data for correct netWorth calculation
   const initialData = [
     { date: "02.11.23", fiat: 14659, bonds: 0, etfs: 0, crypto:0, gold: goldWorthUSD, netWorth: 14659 },
     { date: "02.12.23", fiat: 19218, bonds: 0, etfs: 0, crypto:0, gold: goldWorthUSD, netWorth: 19218 },

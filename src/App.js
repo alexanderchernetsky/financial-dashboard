@@ -57,6 +57,7 @@ const FinancialDashboard = () => {
     { date: "03.02.25", fiat: 9556, bonds: 7920, etfs: 4700, crypto: 13617, gold: goldWorthUSD, netWorth: 37764 },
     { date: "01.03.25", fiat: 8424, bonds: 7920, etfs: 4578, crypto: 11338, gold: goldWorthUSD, netWorth: 34231 },
     { date: "01.04.25", fiat: 8603, bonds: 9698, etfs: 4743, crypto: 10949, gold: goldWorthUSD, netWorth: 35965 },
+    { date: "02.05.25", fiat: 9534, bonds: 10816, etfs: 5400, crypto: 13013, gold: goldWorthUSD, netWorth: 40735 },
   ];
 
   // State for portfolio data

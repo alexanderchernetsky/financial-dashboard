@@ -93,11 +93,6 @@ const FinancialDashboard = () => {
       return new Date(dateA) - new Date(dateB);
     });
 
-    // Calculate netWorth for each entry
-    data.forEach(entry => {
-      entry.netWorth = entry.fiat + entry.bonds + entry.etfs + entry.crypto;
-    });
-
     // Calculate change and percent change
     for (let i = 1; i < data.length; i++) {
       data[i].change = data[i].netWorth - data[i-1].netWorth;

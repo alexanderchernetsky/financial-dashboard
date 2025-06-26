@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, RefreshCw, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import {styles} from './styles';
+import { db } from './firebase';
+import {
+    collection,
+    addDoc,
+    deleteDoc,
+    doc,
+    onSnapshot
+} from 'firebase/firestore';
+
 
 const CryptoTracker = () => {
     const [investments, setInvestments] = useState([]);
@@ -13,6 +22,35 @@ const CryptoTracker = () => {
         purchasePrice: '',
         amountPaid: ''
     });
+
+    const investmentsRef = collection(db, 'investments');
+
+// Fetch data on mount
+    useEffect(() => {
+        const unsubscribe = onSnapshot(investmentsRef, (snapshot) => {
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setInvestments(data);
+        });
+
+        return () => unsubscribe(); // Clean up listener
+    }, []);
+
+// Save new investment to Firestore
+    const addInvestmentToCloud = async (investment) => {
+        await addDoc(investmentsRef, investment);
+    };
+
+// Delete from Firestore
+    const removeInvestmentFromCloud = async (id) => {
+        try {
+            const docRef = doc(db, 'investments', String(id));
+            await deleteDoc(docRef);
+            console.log('Deleted successfully');
+        } catch (error) {
+            console.error('Error deleting investment:', error);
+        }
+    };
+
 
     // Auto-update prices every 30 seconds
     useEffect(() => {
@@ -103,7 +141,6 @@ const CryptoTracker = () => {
             const profitLossPercentage = ((profitLoss / amountPaid) * 100);
 
             const newInvestment = {
-                id: Date.now(),
                 tokenName: formData.tokenName,
                 symbol: formData.symbol.toLowerCase(),
                 quantity,
@@ -117,7 +154,7 @@ const CryptoTracker = () => {
                 lastUpdated: new Date().toLocaleTimeString()
             };
 
-            setInvestments(prev => [...prev, newInvestment]);
+            await addInvestmentToCloud(newInvestment);
             setFormData({ tokenName: '', symbol: '', quantity: '', purchasePrice: '', amountPaid: '' });
             setShowAddForm(false);
         } catch (error) {
@@ -127,8 +164,8 @@ const CryptoTracker = () => {
         setLoading(false);
     };
 
-    const removeInvestment = (id) => {
-        setInvestments(prev => prev.filter(inv => inv.id !== id));
+    const removeInvestment = async (id) => {
+       await  removeInvestmentFromCloud(id);
     };
 
     const totalInvested = investments.reduce((sum, inv) => sum + inv.amountPaid, 0);

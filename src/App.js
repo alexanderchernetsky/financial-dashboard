@@ -32,6 +32,7 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon
 } from '@mui/icons-material';
+import CryptoTracker from "./CryptoTracker";
 
 const goldWorthUSD = 1972;
 
@@ -249,6 +250,7 @@ const FinancialDashboard = () => {
   };
 
   return (
+      <>
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mb: 4 }}>
           Financial Portfolio Dashboard
@@ -645,6 +647,9 @@ const FinancialDashboard = () => {
           </Box>
         </Snackbar>
       </Container>
+
+      <CryptoTracker />
+  </>
   );
 };
 

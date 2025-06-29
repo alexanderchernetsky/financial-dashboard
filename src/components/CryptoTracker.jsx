@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, RefreshCw, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import {
-    collection,
-    addDoc,
-    deleteDoc,
-    doc,
-    onSnapshot
-} from 'firebase/firestore';
-import {styles} from '../styles';
-import { db } from '../firebase';
+    useInvestments,
+    useAddInvestment,
+    useRemoveInvestment
+} from '../react-query/useInvestments';
+import { fetchPrices } from '../utils/api/getPrices';
+import {
+    DollarSign, RefreshCw, Plus, TrendingUp, TrendingDown
+} from 'lucide-react';
+import { styles } from '../styles';
 
 
 
 const CryptoTracker = () => {
-    const [investments, setInvestments] = useState([]);
+    const { data: investments = [], refetch } = useInvestments();
+    const addMutation = useAddInvestment();
+    const removeMutation = useRemoveInvestment();
+
     const [showAddForm, setShowAddForm] = useState(false);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -23,130 +26,74 @@ const CryptoTracker = () => {
         purchasePrice: '',
         amountPaid: ''
     });
+    const [updatedInvestments, setUpdatedInvestments] = useState([]);
 
-    const investmentsRef = collection(db, 'investments');
-
-    // Fetch data on mount
     useEffect(() => {
-        const unsubscribe = onSnapshot(investmentsRef, (snapshot) => {
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setInvestments(data);
-        });
+        if (!investments || investments.length === 0) return;
+        updatePrices();
 
-        return () => unsubscribe(); // Clean up listener
-    }, []);
-
-    // Save new investment to Firestore
-    const addInvestmentToCloud = async (investment) => {
-        await addDoc(investmentsRef, investment);
-    };
-
-    // Delete from Firestore
-    const removeInvestmentFromCloud = async (id) => {
-        try {
-            const docRef = doc(db, 'investments', String(id));
-            await deleteDoc(docRef);
-            console.log('Deleted successfully');
-        } catch (error) {
-            console.error('Error deleting investment:', error);
-        }
-    };
-
-
-    // Auto-update prices every 30 seconds
-    useEffect(() => {
-        if (investments.length > 0) {
-            updatePrices();
-            const interval = setInterval(updatePrices, 30000);
-            return () => clearInterval(interval);
-        }
-    }, [investments.length]);
+        const interval = setInterval(updatePrices, 30000);
+        return () => clearInterval(interval);
+    }, [investments]);
 
     const updatePrices = async () => {
-        if (investments.length === 0) return;
-
+        if (!investments || investments.length === 0) return;
         setLoading(true);
+
         try {
-            const symbols = investments.map(inv => inv.symbol.toLowerCase()).join(',');
-            console.log('Fetching prices for:', symbols);
-
-            const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${symbols}&vs_currencies=usd`);
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log('API Response:', data);
-
-            setInvestments(prev => prev.map(investment => {
-                const symbolKey = investment.symbol.toLowerCase();
-                const newPrice = data[symbolKey]?.usd;
-
-                // If we can't get new price from API, keep the current price
-                const currentPrice = newPrice !== undefined ? newPrice : investment.currentPrice;
-                const currentValue = investment.quantity * currentPrice;
-                const profitLoss = currentValue - investment.amountPaid;
-                const profitLossPercentage = ((profitLoss / investment.amountPaid) * 100);
-
-                console.log(`${investment.tokenName}: ${investment.currentPrice} -> ${currentPrice}`);
+            const data = await fetchPrices(investments.map(i => i.symbol));
+            const enriched = investments.map(inv => {
+                const price = data[inv.symbol]?.usd ?? inv.currentPrice ?? 0;
+                const currentValue = inv.quantity * price;
+                const profitLoss = currentValue - inv.amountPaid;
+                const profitLossPercentage = ((profitLoss / inv.amountPaid) * 100);
 
                 return {
-                    ...investment,
-                    currentPrice,
+                    ...inv,
+                    currentPrice: price,
                     currentValue,
                     profitLoss,
                     profitLossPercentage,
                     lastUpdated: new Date().toLocaleTimeString()
                 };
-            }));
-        } catch (error) {
-            console.error('Error fetching prices:', error);
-            alert('Error updating prices. Please check your internet connection and try again.');
+            });
+
+            setUpdatedInvestments(enriched);
+        } catch (err) {
+            console.error(err);
+            alert('Error updating prices');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleSubmit = async () => {
-        if (!formData.tokenName || !formData.symbol || !formData.quantity || !formData.purchasePrice) {
-            alert('Please fill in all required fields');
-            return;
+        const { tokenName, symbol, quantity, purchasePrice, amountPaid } = formData;
+        if (!tokenName || !symbol || !quantity || !purchasePrice) {
+            return alert('Fill all required fields');
         }
 
-        const quantity = parseFloat(formData.quantity);
-        const purchasePrice = parseFloat(formData.purchasePrice);
-        const amountPaid = formData.amountPaid ? parseFloat(formData.amountPaid) : quantity * purchasePrice;
+        const qty = parseFloat(quantity);
+        const price = parseFloat(purchasePrice);
+        const paid = amountPaid ? parseFloat(amountPaid) : qty * price;
 
-        // Fetch current price
         setLoading(true);
         try {
-            const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${formData.symbol.toLowerCase()}&vs_currencies=usd`);
+            const data = await fetchPrices([symbol]);
+            const currentPrice = data[symbol]?.usd;
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!currentPrice) throw new Error('Invalid symbol');
 
-            const data = await response.json();
-            console.log('Initial price fetch:', data);
-
-            const currentPrice = data[formData.symbol.toLowerCase()]?.usd;
-
-            if (!currentPrice) {
-                alert('Could not fetch price for this token. Please check the CoinGecko ID and try again.');
-                setLoading(false);
-                return;
-            }
-
-            const currentValue = quantity * currentPrice;
-            const profitLoss = currentValue - amountPaid;
-            const profitLossPercentage = ((profitLoss / amountPaid) * 100);
+            const currentValue = qty * currentPrice;
+            const profitLoss = currentValue - paid;
+            const profitLossPercentage = ((profitLoss / paid) * 100);
 
             const newInvestment = {
-                tokenName: formData.tokenName,
-                symbol: formData.symbol.toLowerCase(),
-                quantity,
-                purchasePrice,
-                amountPaid,
+                tokenName,
+                symbol: symbol.toLowerCase(),
+                quantity: qty,
+                purchasePrice: price,
+                amountPaid: paid,
                 currentPrice,
                 currentValue,
                 profitLoss,
@@ -155,22 +102,28 @@ const CryptoTracker = () => {
                 lastUpdated: new Date().toLocaleTimeString()
             };
 
-            await addInvestmentToCloud(newInvestment);
+            await addMutation.mutateAsync(newInvestment);
             setFormData({ tokenName: '', symbol: '', quantity: '', purchasePrice: '', amountPaid: '' });
             setShowAddForm(false);
-        } catch (error) {
-            console.error('Error fetching initial price:', error);
-            alert('Error fetching token price. Please check the symbol and try again.');
+        } catch (err) {
+            alert('Could not add investment');
+            console.error(err);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
-    const removeInvestment = async (id) => {
-       await  removeInvestmentFromCloud(id);
+    const handleRemove = async (id) => {
+        try {
+            await removeMutation.mutateAsync(id);
+        } catch (err) {
+            alert('Failed to remove');
+        }
     };
 
-    const totalInvested = investments.reduce((sum, inv) => sum + inv.amountPaid, 0);
-    const totalCurrentValue = investments.reduce((sum, inv) => sum + inv.currentValue, 0);
+    const portfolio = updatedInvestments.length ? updatedInvestments : investments;
+    const totalInvested = portfolio.reduce((sum, i) => sum + i.amountPaid, 0);
+    const totalCurrentValue = portfolio.reduce((sum, i) => sum + (i.currentValue ?? 0), 0);
     const totalProfitLoss = totalCurrentValue - totalInvested;
     const totalProfitLossPercentage = totalInvested > 0 ? ((totalProfitLoss / totalInvested) * 100) : 0;
 
@@ -388,7 +341,7 @@ const CryptoTracker = () => {
                                         </td>
                                         <td style={{...styles.tableCell, textAlign: 'center'}}>
                                             <button
-                                                onClick={() => removeInvestment(investment.id)}
+                                                onClick={() => handleRemove(investment.id)}
                                                 style={{
                                                     ...styles.button,
                                                     ...styles.buttonDanger,
@@ -407,38 +360,6 @@ const CryptoTracker = () => {
                     </div>
                 </div>
             </div>
-
-            <style jsx>{`
-                @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
-
-                input::placeholder {
-                    color: #94a3b8;
-                }
-
-                input:focus {
-                    outline: none;
-                    border-color: rgba(59, 130, 246, 0.5);
-                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-                }
-
-                button:disabled {
-                    cursor: not-allowed;
-                }
-
-                @media (max-width: 768px) {
-                    .header {
-                        flex-direction: column;
-                        align-items: stretch;
-                    }
-
-                    .button-group {
-                        justify-content: center;
-                    }
-                }
-            `}</style>
         </div>
     );
 };

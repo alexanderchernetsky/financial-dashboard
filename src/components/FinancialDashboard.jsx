@@ -57,8 +57,6 @@ const FinancialDashboard = () => {
   const investmentsRef = collection(db, 'portfolio');
   const { data: investments, isLoading, error, isFetching } = useInvestmentsPolling();
 
-  console.log('investments', investments);
-
   // State for UI operations
   const [snackbar, setSnackbar] = useState({
     open: false,

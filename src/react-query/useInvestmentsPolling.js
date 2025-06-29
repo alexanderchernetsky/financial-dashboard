@@ -10,7 +10,7 @@ export const useInvestmentsPolling = () => {
         queryKey: ['portfolio'],
         queryFn: async () => {
             const snapshot = await getDocs(investmentsRef);
-            return snapshot.docs.map((doc) => ({
+            return snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data(),
             }));

@@ -1,19 +1,5 @@
 import React, { useState } from 'react';
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-    AreaChart,
-    Area,
-    PieChart,
-    Pie,
-    Cell,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
 import {
     Box,
     Container,
@@ -39,14 +25,7 @@ import {
     Snackbar,
     CircularProgress,
 } from '@mui/material';
-import {
-    TrendingUp,
-    TrendingDown,
-    AttachMoney,
-    Add as AddIcon,
-    Delete as DeleteIcon,
-    Edit as EditIcon,
-} from '@mui/icons-material';
+import { TrendingUp, TrendingDown, AttachMoney, Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
@@ -142,13 +121,7 @@ const FinancialDashboard = () => {
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
         return (
-            <text
-                x={x}
-                y={y}
-                fill={assetDistributionData[index].color}
-                textAnchor={x > cx ? 'start' : 'end'}
-                dominantBaseline="central"
-            >
+            <text x={x} y={y} fill={assetDistributionData[index].color} textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
                 {`${assetDistributionData[index].name} (${(percent * 100).toFixed(1)}%)`}
             </text>
         );
@@ -173,7 +146,7 @@ const FinancialDashboard = () => {
         setOpenDialog(true);
     };
 
-    const handleOpenEditDialog = (item) => {
+    const handleOpenEditDialog = item => {
         setEditItem(item);
         setFormData({
             date: item.date,
@@ -190,7 +163,7 @@ const FinancialDashboard = () => {
         setEditItem(null);
     };
 
-    const handleInputChange = (e) => {
+    const handleInputChange = e => {
         const { name, value } = e.target;
         setFormData({
             ...formData,
@@ -235,7 +208,7 @@ const FinancialDashboard = () => {
     };
 
     // Delete handlers
-    const handleOpenDeleteDialog = (item) => {
+    const handleOpenDeleteDialog = item => {
         setDeleteItem(item);
         setOpenDeleteDialog(true);
     };
@@ -306,12 +279,7 @@ const FinancialDashboard = () => {
                     Financial Portfolio Dashboard
                 </Typography>
 
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => navigate('/crypto')}
-                    style={{ marginBottom: '16px' }}
-                >
+                <Button variant="contained" color="primary" onClick={() => navigate('/crypto')} style={{ marginBottom: '16px' }}>
                     Go to Crypto Tracker
                 </Button>
 
@@ -322,8 +290,7 @@ const FinancialDashboard = () => {
                             display: 'flex',
                             justifyContent: 'center',
                             mb: 2,
-                        }}
-                    >
+                        }}>
                         <CircularProgress size={20} />
                         <Typography variant="body2" sx={{ ml: 1 }}>
                             Updating data...
@@ -341,8 +308,7 @@ const FinancialDashboard = () => {
                                         display: 'flex',
                                         alignItems: 'center',
                                         mb: 2,
-                                    }}
-                                >
+                                    }}>
                                     <AttachMoney sx={{ color: 'primary.main', mr: 1 }} />
                                     <Typography variant="h6" component="div">
                                         Current Net Worth
@@ -366,8 +332,7 @@ const FinancialDashboard = () => {
                                         display: 'flex',
                                         alignItems: 'center',
                                         mb: 2,
-                                    }}
-                                >
+                                    }}>
                                     {monthlyChange >= 0 ? (
                                         <TrendingUp
                                             sx={{
@@ -388,8 +353,7 @@ const FinancialDashboard = () => {
                                     sx={{
                                         mb: 1,
                                         color: monthlyChange >= 0 ? 'success.main' : 'error.main',
-                                    }}
-                                >
+                                    }}>
                                     {monthlyChange >= 0 ? '+' : ''}
                                     {formatCurrency(monthlyChange || 0)}
                                 </Typography>
@@ -397,8 +361,7 @@ const FinancialDashboard = () => {
                                     variant="body2"
                                     sx={{
                                         color: monthlyChange >= 0 ? 'success.main' : 'error.main',
-                                    }}
-                                >
+                                    }}>
                                     {monthlyChange >= 0 ? '+' : ''}
                                     {monthlyChangePercent}% from previous month
                                 </Typography>
@@ -414,8 +377,7 @@ const FinancialDashboard = () => {
                                         display: 'flex',
                                         alignItems: 'center',
                                         mb: 2,
-                                    }}
-                                >
+                                    }}>
                                     {totalGrowth >= 0 ? (
                                         <TrendingUp
                                             sx={{
@@ -436,8 +398,7 @@ const FinancialDashboard = () => {
                                     sx={{
                                         mb: 1,
                                         color: totalGrowth >= 0 ? 'success.main' : 'error.main',
-                                    }}
-                                >
+                                    }}>
                                     {totalGrowth >= 0 ? '+' : ''}
                                     {formatCurrency(totalGrowth || 0)}
                                 </Typography>
@@ -445,8 +406,7 @@ const FinancialDashboard = () => {
                                     variant="body2"
                                     sx={{
                                         color: totalGrowth >= 0 ? 'success.main' : 'error.main',
-                                    }}
-                                >
+                                    }}>
                                     {totalGrowth >= 0 ? '+' : ''}
                                     {totalGrowthPercent}% since {processedData[0]?.date || 'start'}
                                 </Typography>
@@ -469,21 +429,13 @@ const FinancialDashboard = () => {
                                     right: 30,
                                     left: 0,
                                     bottom: 0,
-                                }}
-                            >
+                                }}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="date" />
-                                <YAxis tickFormatter={(value) => `$${value / 1000}k`} />
-                                <Tooltip formatter={(value) => formatCurrency(value)} />
+                                <YAxis tickFormatter={value => `$${value / 1000}k`} />
+                                <Tooltip formatter={value => formatCurrency(value)} />
                                 <Legend />
-                                <Area
-                                    type="monotone"
-                                    dataKey="netWorth"
-                                    stroke="#2196f3"
-                                    fill="#2196f3"
-                                    fillOpacity={0.3}
-                                    name="Net Worth"
-                                />
+                                <Area type="monotone" dataKey="netWorth" stroke="#2196f3" fill="#2196f3" fillOpacity={0.3} name="Net Worth" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </Box>
@@ -499,19 +451,15 @@ const FinancialDashboard = () => {
                             <BarChart data={processedData.slice(1)}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="date" />
-                                <YAxis tickFormatter={(value) => `$${value / 1000}k`} />
+                                <YAxis tickFormatter={value => `$${value / 1000}k`} />
                                 <Tooltip
                                     formatter={(value, name) => {
                                         if (name === 'change') return formatCurrency(value);
                                         return value;
                                     }}
-                                    labelFormatter={(label) => `Date: ${label}`}
+                                    labelFormatter={label => `Date: ${label}`}
                                 />
-                                <Bar
-                                    dataKey="change"
-                                    name="Monthly Change ($)"
-                                    fill={(entry) => (entry.change >= 0 ? '#4caf50' : '#f44336')}
-                                />
+                                <Bar dataKey="change" name="Monthly Change ($)" fill={entry => (entry.change >= 0 ? '#4caf50' : '#f44336')} />
                             </BarChart>
                         </ResponsiveContainer>
                     </Box>
@@ -527,8 +475,8 @@ const FinancialDashboard = () => {
                             <BarChart data={processedData}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="date" />
-                                <YAxis tickFormatter={(value) => `$${value / 1000}k`} />
-                                <Tooltip formatter={(value) => formatCurrency(value)} />
+                                <YAxis tickFormatter={value => `$${value / 1000}k`} />
+                                <Tooltip formatter={value => formatCurrency(value)} />
                                 <Legend />
                                 <Bar dataKey="fiat" stackId="a" fill={assetColors.fiat} name="Fiat" />
                                 <Bar dataKey="bonds" stackId="a" fill={assetColors.bonds} name="Government Bonds" />
@@ -555,19 +503,14 @@ const FinancialDashboard = () => {
                                     label={renderCustomizedLabel}
                                     outerRadius={130}
                                     fill="#8884d8"
-                                    dataKey="value"
-                                >
+                                    dataKey="value">
                                     {assetDistributionData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Pie>
                                 <Tooltip
                                     formatter={(value, name, props) => {
-                                        return [
-                                            formatCurrency(value),
-                                            name,
-                                            `${((value / (currentMonthData?.netWorth || 1)) * 100).toFixed(1)}%`,
-                                        ];
+                                        return [formatCurrency(value), name, `${((value / (currentMonthData?.netWorth || 1)) * 100).toFixed(1)}%`];
                                     }}
                                 />
                                 <Legend
@@ -588,8 +531,7 @@ const FinancialDashboard = () => {
                             justifyContent: 'space-between',
                             alignItems: 'center',
                             mb: 2,
-                        }}
-                    >
+                        }}>
                         <Typography variant="h6" component="h2">
                             Portfolio Summary Table
                         </Typography>
@@ -618,12 +560,12 @@ const FinancialDashboard = () => {
                                 {processedData.map((row, index) => {
                                     // Find the original item from portfolioData for edit/delete operations
                                     const originalItem = portfolioData.find(
-                                        (item) =>
+                                        item =>
                                             item.date === row.date &&
                                             item.fiat === row.fiat &&
                                             item.bonds === row.bonds &&
                                             item.etfs === row.etfs &&
-                                            item.crypto === row.crypto
+                                            item.crypto === row.crypto,
                                     );
 
                                     return (
@@ -641,28 +583,16 @@ const FinancialDashboard = () => {
                                             <TableCell
                                                 align="right"
                                                 sx={{
-                                                    color:
-                                                        row.change > 0
-                                                            ? 'success.main'
-                                                            : row.change < 0
-                                                              ? 'error.main'
-                                                              : 'inherit',
-                                                }}
-                                            >
+                                                    color: row.change > 0 ? 'success.main' : row.change < 0 ? 'error.main' : 'inherit',
+                                                }}>
                                                 {row.change > 0 ? '+' : ''}
                                                 {row.change.toLocaleString()}
                                             </TableCell>
                                             <TableCell
                                                 align="right"
                                                 sx={{
-                                                    color:
-                                                        row.changePercent > 0
-                                                            ? 'success.main'
-                                                            : row.changePercent < 0
-                                                              ? 'error.main'
-                                                              : 'inherit',
-                                                }}
-                                            >
+                                                    color: row.changePercent > 0 ? 'success.main' : row.changePercent < 0 ? 'error.main' : 'inherit',
+                                                }}>
                                                 {row.changePercent > 0 ? '+' : ''}
                                                 {row.changePercent}%
                                             </TableCell>
@@ -671,16 +601,14 @@ const FinancialDashboard = () => {
                                                     size="small"
                                                     color="primary"
                                                     onClick={() => handleOpenEditDialog(originalItem)}
-                                                    disabled={!originalItem}
-                                                >
+                                                    disabled={!originalItem}>
                                                     <EditIcon fontSize="small" />
                                                 </IconButton>
                                                 <IconButton
                                                     size="small"
                                                     color="error"
                                                     onClick={() => handleOpenDeleteDialog(originalItem)}
-                                                    disabled={!originalItem}
-                                                >
+                                                    disabled={!originalItem}>
                                                     <DeleteIcon fontSize="small" />
                                                 </IconButton>
                                             </TableCell>
@@ -697,9 +625,7 @@ const FinancialDashboard = () => {
                     <DialogTitle>{editItem ? 'Edit Entry' : 'Add New Entry'}</DialogTitle>
                     <DialogContent>
                         <DialogContentText sx={{ mb: 2 }}>
-                            {editItem
-                                ? 'Update the values for this portfolio entry.'
-                                : 'Enter the details for your new portfolio entry.'}
+                            {editItem ? 'Update the values for this portfolio entry.' : 'Enter the details for your new portfolio entry.'}
                         </DialogContentText>
                         <TextField
                             autoFocus
@@ -768,9 +694,7 @@ const FinancialDashboard = () => {
                 <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
                     <DialogTitle>Confirm Deletion</DialogTitle>
                     <DialogContent>
-                        <DialogContentText>
-                            Are you sure you want to delete this entry? This action cannot be undone.
-                        </DialogContentText>
+                        <DialogContentText>Are you sure you want to delete this entry? This action cannot be undone.</DialogContentText>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
@@ -781,26 +705,15 @@ const FinancialDashboard = () => {
                 </Dialog>
 
                 {/* Snackbar for notifications */}
-                <Snackbar
-                    open={snackbar.open}
-                    autoHideDuration={4000}
-                    onClose={handleCloseSnackbar}
-                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                >
+                <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                     <Box
                         sx={{
-                            bgcolor:
-                                snackbar.severity === 'error'
-                                    ? 'error.main'
-                                    : snackbar.severity === 'success'
-                                      ? 'success.main'
-                                      : 'info.main',
+                            bgcolor: snackbar.severity === 'error' ? 'error.main' : snackbar.severity === 'success' ? 'success.main' : 'info.main',
                             color: 'white',
                             px: 3,
                             py: 2,
                             borderRadius: 1,
-                        }}
-                    >
+                        }}>
                         {snackbar.message}
                     </Box>
                 </Snackbar>

@@ -6,7 +6,7 @@ export const styles = {
         fontFamily: 'system-ui, -apple-system, sans-serif'
     },
     maxWidth: {
-        maxWidth: '1200px',
+        maxWidth: '1400px',
         margin: '0 auto'
     },
     card: {
@@ -169,5 +169,19 @@ export const styles = {
         color: '#94a3b8',
         fontSize: '12px',
         marginTop: '8px'
+    },
+    iconButton: {
+        padding: '6px',
+        backgroundColor: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        color: '#60a5fa'
+    },
+    iconButtonRemove: {
+        padding: '6px',
+        backgroundColor: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        color: '#f87171'
     }
 };

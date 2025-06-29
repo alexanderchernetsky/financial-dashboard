@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import {
     useInvestments,
     useAddInvestment,
-    useRemoveInvestment
+    useRemoveInvestment, useUpdateInvestment
 } from '../react-query/useInvestments';
 import { fetchPrices } from '../utils/api/getPrices';
 import {
-    DollarSign, RefreshCw, Plus, TrendingUp, TrendingDown
+    DollarSign, RefreshCw, Plus, Pencil, Trash2
 } from 'lucide-react';
 import { styles } from '../styles';
+import {CryptoPortfolioSummary} from "./CryptoPortfolioSummary";
 
 
 
@@ -16,6 +17,7 @@ const CryptoTracker = () => {
     const { data: investments = [], refetch } = useInvestments();
     const addMutation = useAddInvestment();
     const removeMutation = useRemoveInvestment();
+    const updateMutation = useUpdateInvestment();
 
     const [showAddForm, setShowAddForm] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -26,8 +28,13 @@ const CryptoTracker = () => {
         purchasePrice: '',
         amountPaid: '',
         wallet: '',
-        dateAdded: '' // NEW
+        dateAdded: '',
+        status: 'open'  // New field, default to 'open'
     });
+
+    // edit
+    const [editingInvestment, setEditingInvestment] = useState(null);
+
 
     const [updatedInvestments, setUpdatedInvestments] = useState([]);
 
@@ -35,7 +42,7 @@ const CryptoTracker = () => {
         if (!investments || investments.length === 0) return;
         updatePrices();
 
-        const interval = setInterval(updatePrices, 30000);
+        const interval = setInterval(updatePrices, 60000); // every 60 seconds
         return () => clearInterval(interval);
     }, [investments]);
 
@@ -70,6 +77,23 @@ const CryptoTracker = () => {
         }
     };
 
+    // EDIT
+    const handleEdit = (investment) => {
+        setFormData({
+            tokenName: investment.tokenName,
+            symbol: investment.symbol,
+            quantity: investment.quantity.toString(),
+            purchasePrice: investment.purchasePrice.toString(),
+            amountPaid: investment.amountPaid.toString(),
+            wallet: investment.wallet || '',
+            dateAdded: investment.dateAdded || '',
+            status: investment.status || 'open'
+        });
+        setEditingInvestment(investment);
+        setShowAddForm(true);
+    };
+
+    // CREATE
     const handleSubmit = async () => {
         const { tokenName, symbol, quantity, purchasePrice, amountPaid } = formData;
         if (!tokenName || !symbol || !quantity || !purchasePrice) {
@@ -91,24 +115,50 @@ const CryptoTracker = () => {
             const profitLoss = currentValue - paid;
             const profitLossPercentage = ((profitLoss / paid) * 100);
 
-            const newInvestment = {
-                tokenName,
-                wallet: formData.wallet,
-                symbol: symbol.toLowerCase(),
-                quantity: qty,
-                purchasePrice: price,
-                amountPaid: paid,
-                currentPrice,
-                currentValue,
-                profitLoss,
-                profitLossPercentage,
-                dateAdded: formData.dateAdded || new Date().toLocaleDateString(),
-                lastUpdated: new Date().toLocaleTimeString()
-            };
+            if (editingInvestment) {
+                // UPDATE
+                const updated = {
+                    ...editingInvestment,
+                    tokenName,
+                    symbol: symbol.toLowerCase(),
+                    quantity: qty,
+                    purchasePrice: price,
+                    amountPaid: paid,
+                    currentPrice,
+                    currentValue,
+                    profitLoss,
+                    profitLossPercentage,
+                    dateAdded: formData.dateAdded || new Date().toLocaleDateString(),
+                    lastUpdated: new Date().toLocaleTimeString(),
+                    wallet: formData.wallet || '',
+                    status: formData.status || 'open'
+                };
 
-            await addMutation.mutateAsync(newInvestment);
-            setFormData({ tokenName: '', symbol: '', quantity: '', purchasePrice: '', amountPaid: '' });
+                await updateMutation.mutateAsync(updated);
+            } else {
+                // ADD
+                const newInvestment = {
+                    tokenName,
+                    symbol: symbol.toLowerCase(),
+                    quantity: qty,
+                    purchasePrice: price,
+                    amountPaid: paid,
+                    currentPrice,
+                    currentValue,
+                    profitLoss,
+                    profitLossPercentage,
+                    dateAdded: formData.dateAdded || new Date().toLocaleDateString(),
+                    lastUpdated: new Date().toLocaleTimeString(),
+                    wallet: formData.wallet || '',
+                    status: formData.status || 'open'
+                };
+
+                await addMutation.mutateAsync(newInvestment);
+            }
+
+            setFormData({ tokenName: '', symbol: '', quantity: '', purchasePrice: '', amountPaid: '', wallet: '', dateAdded: '', status: 'open' });
             setShowAddForm(false);
+            setEditingInvestment(null);
         } catch (err) {
             alert('Could not add investment');
             console.error(err);
@@ -117,6 +167,8 @@ const CryptoTracker = () => {
         }
     };
 
+
+    // DELETE
     const handleRemove = async (id) => {
         try {
             await removeMutation.mutateAsync(id);
@@ -169,35 +221,13 @@ const CryptoTracker = () => {
                     </div>
 
                     {/* Portfolio Summary */}
-                    <div style={styles.summaryGrid}>
-                        <div style={styles.summaryCard}>
-                            <div style={styles.summaryLabel}>Total Invested</div>
-                            <div style={styles.summaryValue}>${totalInvested.toFixed(2)}</div>
-                        </div>
-                        <div style={styles.summaryCard}>
-                            <div style={styles.summaryLabel}>Current Value</div>
-                            <div style={styles.summaryValue}>${totalCurrentValue.toFixed(2)}</div>
-                        </div>
-                        <div style={styles.summaryCard}>
-                            <div style={styles.summaryLabel}>Profit/Loss</div>
-                            <div style={{...styles.summaryValue, color: totalProfitLoss >= 0 ? '#4ade80' : '#f87171'}}>
-                                {totalProfitLoss >= 0 ? <TrendingUp style={{width: '16px', height: '16px'}} /> : <TrendingDown style={{width: '16px', height: '16px'}} />}
-                                ${totalProfitLoss.toFixed(2)}
-                            </div>
-                        </div>
-                        <div style={styles.summaryCard}>
-                            <div style={styles.summaryLabel}>Profit/Loss %</div>
-                            <div style={{...styles.summaryValue, color: totalProfitLossPercentage >= 0 ? '#4ade80' : '#f87171'}}>
-                                {totalProfitLossPercentage >= 0 ? '+' : ''}{totalProfitLossPercentage.toFixed(2)}%
-                            </div>
-                        </div>
-                    </div>
+                   <CryptoPortfolioSummary totalInvested={totalInvested} totalCurrentValue={totalCurrentValue} totalProfitLoss={totalProfitLoss} totalProfitLossPercentage={totalProfitLossPercentage}  />
                 </div>
 
                 {/* Add Investment Form */}
                 {showAddForm && (
                     <div style={styles.card}>
-                        <h2 style={{color: 'white', marginBottom: '20px', fontSize: '1.25rem', fontWeight: 'bold'}}>Add New Investment</h2>
+                        <h2 style={{color: 'white', marginBottom: '20px', fontSize: '1.25rem', fontWeight: 'bold'}}>{editingInvestment ? 'Edit Investment' : 'Add New Investment'}</h2>
                         <div style={styles.formGrid}>
                             <div style={styles.formGroup}>
                                 <label style={styles.label}>Date of Purchase</label>
@@ -271,6 +301,18 @@ const CryptoTracker = () => {
                                     style={styles.input}
                                 />
                             </div>
+                            <div style={styles.formGroup}>
+                                <label style={styles.label}>Status</label>
+                                <select
+                                    value={formData.status}
+                                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                                    style={styles.input}
+                                >
+                                    <option value="open">Open</option>
+                                    <option value="closed">Closed</option>
+                                </select>
+                            </div>
+
                         </div>
                         <div style={styles.buttonGroup}>
                             <button
@@ -284,7 +326,7 @@ const CryptoTracker = () => {
                                 onMouseOver={(e) => !loading && (e.target.style.backgroundColor = styles.buttonSuccessHover.backgroundColor)}
                                 onMouseOut={(e) => (e.target.style.backgroundColor = styles.buttonSuccess.backgroundColor)}
                             >
-                                {loading ? 'Adding...' : 'Add Investment'}
+                                {editingInvestment ? 'Update Investment' : 'Add Investment'}
                             </button>
                             <button
                                 onClick={() => setShowAddForm(false)}
@@ -292,6 +334,18 @@ const CryptoTracker = () => {
                             >
                                 Cancel
                             </button>
+                            {editingInvestment && (
+                                <button
+                                    onClick={() => {
+                                        setEditingInvestment(null);
+                                        setFormData({ tokenName: '', symbol: '', quantity: '', purchasePrice: '', amountPaid: '', wallet: '', dateAdded: '', status: 'open' });
+                                        setShowAddForm(false);
+                                    }}
+                                    style={{...styles.button, ...styles.buttonSecondary}}
+                                >
+                                    Cancel Edit
+                                </button>
+                            )}
                         </div>
                         <div style={styles.note}>
                             * Use CoinGecko IDs for symbols (e.g., 'bitcoin', 'ethereum', 'cardano'). Check coingecko.com for exact IDs.
@@ -315,13 +369,14 @@ const CryptoTracker = () => {
                                 <th style={{...styles.tableHeader, textAlign: 'right'}}>Current Value</th>
                                 <th style={{...styles.tableHeader, textAlign: 'right'}}>Profit/Loss</th>
                                 <th style={{...styles.tableHeader, textAlign: 'right'}}>P/L %</th>
+                                <th style={{...styles.tableHeader, textAlign: 'center'}}>Status</th>
                                 <th style={{...styles.tableHeader, textAlign: 'center'}}>Actions</th>
                             </tr>
                             </thead>
                             <tbody>
                             {investments.length === 0 ? (
                                 <tr>
-                                    <td colSpan="10" style={{...styles.tableCell, ...styles.emptyState}}>
+                                    <td colSpan="11" style={{...styles.tableCell, ...styles.emptyState}}>
                                         No investments added yet. Click "Add Investment" to get started!
                                     </td>
                                 </tr>
@@ -364,18 +419,27 @@ const CryptoTracker = () => {
                                         }}>
                                             {investment.profitLossPercentage >= 0 ? '+' : ''}{investment.profitLossPercentage.toFixed(2)}%
                                         </td>
+                                        <td style={{...styles.tableCell, textAlign: 'center', fontWeight: 'bold', textTransform: 'capitalize'}}>
+                                            {investment.status || 'open'}
+                                        </td>
                                         <td style={{...styles.tableCell, textAlign: 'center'}}>
-                                            <button
-                                                onClick={() => handleRemove(investment.id)}
-                                                style={{
-                                                    ...styles.button,
-                                                    ...styles.buttonDanger,
-                                                    fontSize: '12px',
-                                                    padding: '6px 12px'
-                                                }}
-                                            >
-                                                Remove
-                                            </button>
+                                            <div style={{ display: 'flex', justifyContent: 'center', gap: '2px' }}>
+                                                <button
+                                                    onClick={() => handleEdit(investment)}
+                                                    title="Edit"
+                                                    style={styles.iconButton}
+                                                >
+                                                    <Pencil size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleRemove(investment.id)}
+                                                    title="Remove"
+                                                    style={styles.iconButtonRemove}
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+
                                         </td>
                                     </tr>
                                 ))

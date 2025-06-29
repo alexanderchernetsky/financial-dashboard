@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { collection, addDoc, deleteDoc, doc, onSnapshot } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 // the below is used for CryptoTracker
@@ -28,6 +28,17 @@ export const useAddInvestment = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (newInvestment) => addDoc(investmentsRef, newInvestment),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['investments'] }),
+    });
+};
+
+export const useUpdateInvestment = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, ...updateData }) => {
+            const docRef = doc(db, 'investments', String(id));
+            return updateDoc(docRef, updateData);
+        },
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['investments'] }),
     });
 };

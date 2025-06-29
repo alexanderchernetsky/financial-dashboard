@@ -4,12 +4,12 @@ import { db } from '../firebase';
 
 // the below is used for CryptoTracker
 
-const investmentsRef = collection(db, 'investments');
+const investmentsRef = collection(db, 'crypto-investments');
 
 // Custom hook to fetch investments using Firestore's real-time updates
 export const useInvestments = () => {
     return useQuery({
-        queryKey: ['investments'],
+        queryKey: ['crypto-investments'],
         queryFn: () =>
             new Promise(resolve => {
                 const unsubscribe = onSnapshot(investmentsRef, snapshot => {
@@ -31,7 +31,7 @@ export const useAddInvestment = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: newInvestment => addDoc(investmentsRef, newInvestment),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['investments'] }),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crypto-investments'] }),
     });
 };
 
@@ -39,17 +39,17 @@ export const useUpdateInvestment = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: ({ id, ...updateData }) => {
-            const docRef = doc(db, 'investments', String(id));
+            const docRef = doc(db, 'crypto-investments', String(id));
             return updateDoc(docRef, updateData);
         },
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['investments'] }),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crypto-investments'] }),
     });
 };
 
 export const useRemoveInvestment = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: id => deleteDoc(doc(db, 'investments', String(id))),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['investments'] }),
+        mutationFn: id => deleteDoc(doc(db, 'crypto-investments', String(id))),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crypto-investments'] }),
     });
 };

@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { collection, addDoc, deleteDoc, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 
+// the below is used for CryptoTracker
+
 const investmentsRef = collection(db, 'investments');
 
 // Custom hook to fetch investments using Firestore's real-time updates

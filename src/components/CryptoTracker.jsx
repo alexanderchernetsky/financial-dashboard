@@ -24,8 +24,11 @@ const CryptoTracker = () => {
         symbol: '',
         quantity: '',
         purchasePrice: '',
-        amountPaid: ''
+        amountPaid: '',
+        wallet: '',
+        dateAdded: '' // NEW
     });
+
     const [updatedInvestments, setUpdatedInvestments] = useState([]);
 
     useEffect(() => {
@@ -90,6 +93,7 @@ const CryptoTracker = () => {
 
             const newInvestment = {
                 tokenName,
+                wallet: formData.wallet,
                 symbol: symbol.toLowerCase(),
                 quantity: qty,
                 purchasePrice: price,
@@ -98,7 +102,7 @@ const CryptoTracker = () => {
                 currentValue,
                 profitLoss,
                 profitLossPercentage,
-                dateAdded: new Date().toLocaleDateString(),
+                dateAdded: formData.dateAdded || new Date().toLocaleDateString(),
                 lastUpdated: new Date().toLocaleTimeString()
             };
 
@@ -196,12 +200,31 @@ const CryptoTracker = () => {
                         <h2 style={{color: 'white', marginBottom: '20px', fontSize: '1.25rem', fontWeight: 'bold'}}>Add New Investment</h2>
                         <div style={styles.formGrid}>
                             <div style={styles.formGroup}>
+                                <label style={styles.label}>Date of Purchase</label>
+                                <input
+                                    type="date"
+                                    value={formData.dateAdded}
+                                    onChange={(e) => setFormData({...formData, dateAdded: e.target.value})}
+                                    style={styles.input}
+                                />
+                            </div>
+                            <div style={styles.formGroup}>
                                 <label style={styles.label}>Token Name*</label>
                                 <input
                                     type="text"
                                     value={formData.tokenName}
                                     onChange={(e) => setFormData({...formData, tokenName: e.target.value})}
                                     placeholder="e.g., Bitcoin"
+                                    style={styles.input}
+                                />
+                            </div>
+                            <div style={styles.formGroup}>
+                                <label style={styles.label}>Wallet / Exchange</label>
+                                <input
+                                    type="text"
+                                    value={formData.wallet || ''}
+                                    onChange={(e) => setFormData({...formData, wallet: e.target.value})}
+                                    placeholder="e.g., Binance, MetaMask"
                                     style={styles.input}
                                 />
                             </div>
@@ -282,7 +305,9 @@ const CryptoTracker = () => {
                         <table style={styles.table}>
                             <thead>
                             <tr>
+                                <th style={{...styles.tableHeader, textAlign: 'center'}}>Date of Purchase</th>
                                 <th style={{...styles.tableHeader, textAlign: 'left'}}>Token</th>
+                                <th style={{...styles.tableHeader, textAlign: 'left'}}>Wallet / Exchange</th>
                                 <th style={{...styles.tableHeader, textAlign: 'right'}}>Quantity</th>
                                 <th style={{...styles.tableHeader, textAlign: 'right'}}>Purchase Price</th>
                                 <th style={{...styles.tableHeader, textAlign: 'right'}}>Amount Paid</th>
@@ -290,7 +315,6 @@ const CryptoTracker = () => {
                                 <th style={{...styles.tableHeader, textAlign: 'right'}}>Current Value</th>
                                 <th style={{...styles.tableHeader, textAlign: 'right'}}>Profit/Loss</th>
                                 <th style={{...styles.tableHeader, textAlign: 'right'}}>P/L %</th>
-                                <th style={{...styles.tableHeader, textAlign: 'center'}}>Last Updated</th>
                                 <th style={{...styles.tableHeader, textAlign: 'center'}}>Actions</th>
                             </tr>
                             </thead>
@@ -309,12 +333,16 @@ const CryptoTracker = () => {
                                         onMouseOver={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)')}
                                         onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                                     >
+                                        <td style={{...styles.tableCell, textAlign: 'center', fontSize: '12px', color: '#94a3b8'}}>
+                                            {investment.dateAdded ? new Date(investment.dateAdded).toLocaleDateString() : '—'}
+                                        </td>
                                         <td style={styles.tableCell}>
                                             <div style={styles.tokenInfo}>
                                                 <div style={styles.tokenName}>{investment.tokenName}</div>
                                                 <div style={styles.tokenSymbol}>{investment.symbol}</div>
                                             </div>
                                         </td>
+                                        <td style={styles.tableCell}>{investment.wallet || '—'}</td>
                                         <td style={{...styles.tableCell, textAlign: 'right'}}>{investment.quantity.toFixed(6)}</td>
                                         <td style={{...styles.tableCell, textAlign: 'right'}}>${investment.purchasePrice.toFixed(2)}</td>
                                         <td style={{...styles.tableCell, textAlign: 'right'}}>${investment.amountPaid.toFixed(2)}</td>
@@ -335,9 +363,6 @@ const CryptoTracker = () => {
                                             color: investment.profitLossPercentage >= 0 ? '#4ade80' : '#f87171'
                                         }}>
                                             {investment.profitLossPercentage >= 0 ? '+' : ''}{investment.profitLossPercentage.toFixed(2)}%
-                                        </td>
-                                        <td style={{...styles.tableCell, textAlign: 'center', fontSize: '12px', color: '#94a3b8'}}>
-                                            {investment.lastUpdated || 'Never'}
                                         </td>
                                         <td style={{...styles.tableCell, textAlign: 'center'}}>
                                             <button

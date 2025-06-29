@@ -2,6 +2,7 @@ import {useQuery} from "@tanstack/react-query";
 import {collection, getDocs} from 'firebase/firestore';
 import {db} from "../firebase";
 
+// fetches portfolio summary data
 export const useInvestmentsPolling = () => {
     const investmentsRef = collection(db, 'portfolio');
 

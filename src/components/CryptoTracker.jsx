@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, RefreshCw, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
-import {styles} from './styles';
-import { db } from './firebase';
 import {
     collection,
     addDoc,
@@ -9,6 +7,9 @@ import {
     doc,
     onSnapshot
 } from 'firebase/firestore';
+import {styles} from '../styles';
+import { db } from '../firebase';
+
 
 
 const CryptoTracker = () => {

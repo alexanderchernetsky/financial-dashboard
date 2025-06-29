@@ -3,10 +3,10 @@ import {collection, getDocs} from 'firebase/firestore';
 import {db} from "../firebase";
 
 export const useInvestmentsPolling = () => {
-    const investmentsRef = collection(db, 'all-investments');
+    const investmentsRef = collection(db, 'portfolio');
 
     return useQuery({
-        queryKey: ['investments'],
+        queryKey: ['portfolio'],
         queryFn: async () => {
             const snapshot = await getDocs(investmentsRef);
             return snapshot.docs.map(doc => ({

@@ -34,7 +34,7 @@ import {
   Edit as EditIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import {db} from "./firebase";
+import {db} from "../firebase";
 import {
   collection,
   addDoc,
@@ -42,8 +42,8 @@ import {
   doc,
   updateDoc
 } from 'firebase/firestore';
-import {formatCurrency} from "./utils";
-import {useInvestmentsPolling} from "./react-query/useInvestmentsPolling";
+import {formatCurrency, processPortfolioData} from "../utils";
+import {useInvestmentsPolling} from "../react-query/useInvestmentsPolling";
 
 const assetColors = {
   fiat: "#1976d2",
@@ -54,7 +54,7 @@ const assetColors = {
 
 const FinancialDashboard = () => {
   const navigate = useNavigate();
-  const investmentsRef = collection(db, 'all-investments');
+  const investmentsRef = collection(db, 'portfolio');
   const { data: investments, isLoading, error, isFetching } = useInvestmentsPolling();
 
   console.log('investments', investments);
@@ -86,24 +86,7 @@ const FinancialDashboard = () => {
 
   // Process data (calculate changes and percentages)
   const processedData = React.useMemo(() => {
-    if (!portfolioData.length) return [];
-
-    const data = [...portfolioData].sort((a, b) => {
-      // Convert date strings to Date objects for sorting
-      const dateA = a.date.split('.').reverse().join('-');
-      const dateB = b.date.split('.').reverse().join('-');
-      return new Date(dateA) - new Date(dateB);
-    });
-
-    // Calculate change and percent change
-    for (let i = 1; i < data.length; i++) {
-      data[i].change = data[i].netWorth - data[i-1].netWorth;
-      data[i].changePercent = ((data[i].netWorth - data[i-1].netWorth) / data[i-1].netWorth * 100).toFixed(1);
-    }
-    data[0].change = 0;
-    data[0].changePercent = 0;
-
-    return data;
+    return processPortfolioData(portfolioData);
   }, [portfolioData]);
 
   // Get current month data
@@ -187,7 +170,7 @@ const FinancialDashboard = () => {
 
       if (editItem) {
         // Edit existing entry
-        const docRef = doc(db, 'all-investments', editItem.id);
+        const docRef = doc(db, 'portfolio', editItem.id);
         await updateDoc(docRef, entryData);
         setSnackbar({
           open: true,
@@ -228,7 +211,7 @@ const FinancialDashboard = () => {
   const handleConfirmDelete = async () => {
     try {
       if (deleteItem && deleteItem.id) {
-        const docRef = doc(db, 'all-investments', deleteItem.id);
+        const docRef = doc(db, 'portfolio', deleteItem.id);
         await deleteDoc(docRef);
         setSnackbar({
           open: true,

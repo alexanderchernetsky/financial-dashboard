@@ -1,3 +1,5 @@
+require('eslint-plugin-only-warn');
+
 module.exports = {
     extends: ['eslint:recommended', 'prettier'],
     env: {
@@ -8,6 +10,7 @@ module.exports = {
         ecmaVersion: 2020,
         sourceType: 'module',
     },
+    plugins: ['only-warn'],
     rules: {
         // your custom rules
     },

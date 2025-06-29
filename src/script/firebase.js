@@ -1,7 +1,6 @@
 import { collection, writeBatch, doc, serverTimestamp } from 'firebase/firestore';
-import {db} from "../firebase";
-import {initialData} from "../data";
-
+import { db } from '../firebase';
+import { initialData } from '../data';
 
 // export all initial data to Firestore using batch writes (recommended for multiple documents)
 async function addToFirestore() {
@@ -13,7 +12,7 @@ async function addToFirestore() {
             const docRef = doc(collection(db, 'portfolio'));
             batch.set(docRef, {
                 ...entry,
-                timestamp: serverTimestamp()
+                timestamp: serverTimestamp(),
             });
         });
 

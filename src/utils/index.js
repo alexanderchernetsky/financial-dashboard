@@ -15,9 +15,8 @@ const parsePortfolioDate = (dateStr) => {
 // Helper function to calculate change metrics
 const calculateChangeMetrics = (currentNetWorth, previousNetWorth) => {
     const change = currentNetWorth - previousNetWorth;
-    const changePercent = previousNetWorth !== 0
-        ? ((currentNetWorth - previousNetWorth) / previousNetWorth * 100).toFixed(1)
-        : "0.0";
+    const changePercent =
+        previousNetWorth !== 0 ? (((currentNetWorth - previousNetWorth) / previousNetWorth) * 100).toFixed(1) : '0.0';
 
     return { change, changePercent };
 };
@@ -33,10 +32,7 @@ export const processPortfolioData = (portfolioData) => {
 
     // Calculate change and percent change based on chronologically previous entry
     for (let i = 1; i < data.length; i++) {
-        const { change, changePercent } = calculateChangeMetrics(
-            data[i].netWorth,
-            data[i-1].netWorth
-        );
+        const { change, changePercent } = calculateChangeMetrics(data[i].netWorth, data[i - 1].netWorth);
 
         data[i].change = change;
         data[i].changePercent = changePercent;
@@ -44,7 +40,7 @@ export const processPortfolioData = (portfolioData) => {
 
     // First entry has no previous data to compare against
     data[0].change = 0;
-    data[0].changePercent = "0.0";
+    data[0].changePercent = '0.0';
 
     return data;
 };

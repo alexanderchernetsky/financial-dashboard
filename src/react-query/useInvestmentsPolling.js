@@ -1,6 +1,6 @@
-import {useQuery} from "@tanstack/react-query";
-import {collection, getDocs} from 'firebase/firestore';
-import {db} from "../firebase";
+import { useQuery } from '@tanstack/react-query';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
 
 // fetches portfolio summary data
 export const useInvestmentsPolling = () => {
@@ -10,9 +10,9 @@ export const useInvestmentsPolling = () => {
         queryKey: ['portfolio'],
         queryFn: async () => {
             const snapshot = await getDocs(investmentsRef);
-            return snapshot.docs.map(doc => ({
+            return snapshot.docs.map((doc) => ({
                 id: doc.id,
-                ...doc.data()
+                ...doc.data(),
             }));
         },
         refetchInterval: 30000, // Poll every 30 seconds

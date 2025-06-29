@@ -13,7 +13,10 @@ export const useInvestments = () => {
         queryFn: () =>
             new Promise((resolve) => {
                 const unsubscribe = onSnapshot(investmentsRef, (snapshot) => {
-                    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    const data = snapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }));
                     resolve(data);
                 });
 

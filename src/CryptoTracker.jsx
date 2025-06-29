@@ -25,7 +25,7 @@ const CryptoTracker = () => {
 
     const investmentsRef = collection(db, 'investments');
 
-// Fetch data on mount
+    // Fetch data on mount
     useEffect(() => {
         const unsubscribe = onSnapshot(investmentsRef, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -35,12 +35,12 @@ const CryptoTracker = () => {
         return () => unsubscribe(); // Clean up listener
     }, []);
 
-// Save new investment to Firestore
+    // Save new investment to Firestore
     const addInvestmentToCloud = async (investment) => {
         await addDoc(investmentsRef, investment);
     };
 
-// Delete from Firestore
+    // Delete from Firestore
     const removeInvestmentFromCloud = async (id) => {
         try {
             const docRef = doc(db, 'investments', String(id));

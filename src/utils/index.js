@@ -5,7 +5,12 @@ export const formatCurrency = value => {
 };
 
 // Helper function to parse DD.MM.YY date format
-const parsePortfolioDate = dateStr => {
+const parseDate = dateStr => {
+    // Check if it's YYYY-MM-DD format (ISO date format)
+    if (dateStr.includes('-') && dateStr.length === 10) {
+        return new Date(dateStr);
+    }
+
     const [day, month, year] = dateStr.split('.');
     // Handle 2-digit years: 23-24 = 2023-2024, 25+ = 2025+
     const fullYear = parseInt(year) <= 24 ? `20${year}` : `20${year}`;
@@ -26,7 +31,7 @@ export const processPortfolioData = portfolioData => {
 
     // Sort data chronologically
     const data = [...portfolioData].sort((a, b) => {
-        return parsePortfolioDate(a.date) - parsePortfolioDate(b.date);
+        return parseDate(a.date) - parseDate(b.date);
     });
 
     // Calculate change and percent change based on chronologically previous entry
@@ -43,3 +48,14 @@ export const processPortfolioData = portfolioData => {
 
     return data;
 };
+
+export const processCryptoTrackerData = cryptoTrackerData => {
+    if (!cryptoTrackerData.length) return [];
+
+    const data = [...cryptoTrackerData].sort((a, b) => {
+        console.log(a);
+        return parseDate(b.dateAdded) - parseDate(a.dateAdded);
+    });
+
+    return data;
+}

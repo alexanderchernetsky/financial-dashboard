@@ -5,6 +5,7 @@ import { fetchPrices } from '../../utils/api/getPrices';
 import { styles } from '../../styles';
 import { CryptoPortfolioSummary } from './CryptoPortfolioSummary';
 import { AddCryptoInvestmentForm } from './AddCryptoInvestmentForm';
+import {processCryptoTrackerData} from "../../utils";
 
 const CryptoTracker = () => {
     const { data: investments = [], refetch } = useInvestments();
@@ -183,6 +184,11 @@ const CryptoTracker = () => {
     const totalProfitLoss = totalCurrentValue - totalInvested;
     const totalProfitLossPercentage = totalInvested > 0 ? (totalProfitLoss / totalInvested) * 100 : 0;
 
+    // Process data (sort by date)
+    const processedData = React.useMemo(() => {
+        return processCryptoTrackerData(investments);
+    }, [investments]);
+
     return (
         <div style={styles.container}>
             <div style={styles.maxWidth}>
@@ -356,7 +362,7 @@ const CryptoTracker = () => {
                                         </td>
                                     </tr>
                                 ) : (
-                                    investments.map(investment => (
+                                    processedData.map(investment => (
                                         <tr
                                             key={investment.id}
                                             style={{

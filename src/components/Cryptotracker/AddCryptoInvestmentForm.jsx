@@ -1,6 +1,23 @@
 import { styles } from '../../styles';
 
 export const AddCryptoInvestmentForm = ({ formData, setFormData, handleSubmit, loading, editingInvestment, setShowAddForm, setEditingInvestment }) => {
+    const handleCancel = () => {
+        if (editingInvestment) {
+            setEditingInvestment(null);
+            setFormData({
+                tokenName: '',
+                symbol: '',
+                quantity: '',
+                purchasePrice: '',
+                amountPaid: '',
+                wallet: '',
+                dateAdded: '',
+                status: 'open',
+            });
+        }
+        setShowAddForm(false);
+    };
+
     return (
         <div style={styles.card}>
             <h2
@@ -131,29 +148,9 @@ export const AddCryptoInvestmentForm = ({ formData, setFormData, handleSubmit, l
                     onMouseOut={e => (e.target.style.backgroundColor = styles.buttonSuccess.backgroundColor)}>
                     {editingInvestment ? 'Update Investment' : 'Add Investment'}
                 </button>
-                <button onClick={() => setShowAddForm(false)} style={{ ...styles.button, ...styles.buttonSecondary }}>
+                <button onClick={handleCancel} style={{ ...styles.button, ...styles.buttonSecondary }}>
                     Cancel
                 </button>
-                {editingInvestment && (
-                    <button
-                        onClick={() => {
-                            setEditingInvestment(null);
-                            setFormData({
-                                tokenName: '',
-                                symbol: '',
-                                quantity: '',
-                                purchasePrice: '',
-                                amountPaid: '',
-                                wallet: '',
-                                dateAdded: '',
-                                status: 'open',
-                            });
-                            setShowAddForm(false);
-                        }}
-                        style={{ ...styles.button, ...styles.buttonSecondary }}>
-                        Cancel Edit
-                    </button>
-                )}
             </div>
             <div style={styles.note}>* Use CoinGecko IDs for symbols (e.g., 'bitcoin', 'ethereum', 'cardano'). Check coingecko.com for exact IDs.</div>
         </div>

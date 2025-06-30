@@ -44,22 +44,44 @@ const CryptoTracker = () => {
         setLoading(true);
 
         try {
-            const data = await fetchPrices(investments.map(i => i.symbol));
-            const enriched = investments.map(inv => {
-                const price = data[inv.symbol]?.usd ?? inv.currentPrice ?? 0;
-                const currentValue = inv.quantity * price;
-                const profitLoss = currentValue - inv.amountPaid;
-                const profitLossPercentage = (profitLoss / inv.amountPaid) * 100;
+            // Filter out closed investments for price updates
+            const openInvestments = investments.filter(inv => inv.status !== 'closed');
+            const closedInvestments = investments.filter(inv => inv.status === 'closed');
 
-                return {
-                    ...inv,
-                    currentPrice: price,
-                    currentValue,
-                    profitLoss,
-                    profitLossPercentage,
-                    lastUpdated: new Date().toLocaleTimeString(),
-                };
-            });
+            let enriched = [];
+
+            // Only fetch prices for open investments
+            if (openInvestments.length > 0) {
+                const data = await fetchPrices(openInvestments.map(i => i.symbol));
+
+                // Update open investments with new prices
+                const updatedOpenInvestments = openInvestments.map(inv => {
+                    const price = data[inv.symbol]?.usd ?? inv.currentPrice ?? 0;
+                    const currentValue = inv.quantity * price;
+                    const profitLoss = currentValue - inv.amountPaid;
+                    const profitLossPercentage = (profitLoss / inv.amountPaid) * 100;
+
+                    return {
+                        ...inv,
+                        currentPrice: price,
+                        currentValue,
+                        profitLoss,
+                        profitLossPercentage,
+                        lastUpdated: new Date().toLocaleTimeString(),
+                    };
+                });
+
+                enriched = [...updatedOpenInvestments];
+            }
+
+            // Keep closed investments with their existing values (no price updates)
+            const preservedClosedInvestments = closedInvestments.map(inv => ({
+                ...inv,
+                // Keep existing values, don't update lastUpdated time
+            }));
+
+            // Combine updated open investments with preserved closed investments
+            enriched = [...enriched, ...preservedClosedInvestments];
 
             setUpdatedInvestments(enriched);
         } catch (err) {
@@ -184,10 +206,10 @@ const CryptoTracker = () => {
     const totalProfitLoss = totalCurrentValue - totalInvested;
     const totalProfitLossPercentage = totalInvested > 0 ? (totalProfitLoss / totalInvested) * 100 : 0;
 
-    // Process data (sort by date)
+    // Process data (sort by date) - FIXED: Use portfolio instead of investments
     const processedData = React.useMemo(() => {
-        return processCryptoTrackerData(investments);
-    }, [investments]);
+        return processCryptoTrackerData(portfolio);
+    }, [portfolio]); // FIXED: Use portfolio as dependency instead of investments
 
     return (
         <div style={styles.container}>
@@ -262,216 +284,216 @@ const CryptoTracker = () => {
                     <div style={{ overflowX: 'auto' }}>
                         <table style={styles.table}>
                             <thead>
-                                <tr>
-                                    <th
-                                        style={{
-                                            ...styles.tableHeader,
-                                            textAlign: 'center',
-                                        }}>
-                                        Date of Purchase
-                                    </th>
-                                    <th
-                                        style={{
-                                            ...styles.tableHeader,
-                                            textAlign: 'left',
-                                        }}>
-                                        Token
-                                    </th>
-                                    <th
-                                        style={{
-                                            ...styles.tableHeader,
-                                            textAlign: 'left',
-                                        }}>
-                                        Wallet / Exchange
-                                    </th>
-                                    <th
-                                        style={{
-                                            ...styles.tableHeader,
-                                            textAlign: 'right',
-                                        }}>
-                                        Quantity
-                                    </th>
-                                    <th
-                                        style={{
-                                            ...styles.tableHeader,
-                                            textAlign: 'right',
-                                        }}>
-                                        Purchase Price
-                                    </th>
-                                    <th
-                                        style={{
-                                            ...styles.tableHeader,
-                                            textAlign: 'right',
-                                        }}>
-                                        Amount Paid
-                                    </th>
-                                    <th
-                                        style={{
-                                            ...styles.tableHeader,
-                                            textAlign: 'right',
-                                        }}>
-                                        Current Price
-                                    </th>
-                                    <th
-                                        style={{
-                                            ...styles.tableHeader,
-                                            textAlign: 'right',
-                                        }}>
-                                        Current Value
-                                    </th>
-                                    <th
-                                        style={{
-                                            ...styles.tableHeader,
-                                            textAlign: 'right',
-                                        }}>
-                                        Profit/Loss
-                                    </th>
-                                    <th
-                                        style={{
-                                            ...styles.tableHeader,
-                                            textAlign: 'right',
-                                        }}>
-                                        P/L %
-                                    </th>
-                                    <th
-                                        style={{
-                                            ...styles.tableHeader,
-                                            textAlign: 'center',
-                                        }}>
-                                        Status
-                                    </th>
-                                    <th
-                                        style={{
-                                            ...styles.tableHeader,
-                                            textAlign: 'center',
-                                        }}>
-                                        Actions
-                                    </th>
-                                </tr>
+                            <tr>
+                                <th
+                                    style={{
+                                        ...styles.tableHeader,
+                                        textAlign: 'center',
+                                    }}>
+                                    Date of Purchase
+                                </th>
+                                <th
+                                    style={{
+                                        ...styles.tableHeader,
+                                        textAlign: 'left',
+                                    }}>
+                                    Token
+                                </th>
+                                <th
+                                    style={{
+                                        ...styles.tableHeader,
+                                        textAlign: 'left',
+                                    }}>
+                                    Wallet / Exchange
+                                </th>
+                                <th
+                                    style={{
+                                        ...styles.tableHeader,
+                                        textAlign: 'right',
+                                    }}>
+                                    Quantity
+                                </th>
+                                <th
+                                    style={{
+                                        ...styles.tableHeader,
+                                        textAlign: 'right',
+                                    }}>
+                                    Purchase Price
+                                </th>
+                                <th
+                                    style={{
+                                        ...styles.tableHeader,
+                                        textAlign: 'right',
+                                    }}>
+                                    Amount Paid
+                                </th>
+                                <th
+                                    style={{
+                                        ...styles.tableHeader,
+                                        textAlign: 'right',
+                                    }}>
+                                    Current Price
+                                </th>
+                                <th
+                                    style={{
+                                        ...styles.tableHeader,
+                                        textAlign: 'right',
+                                    }}>
+                                    Current Value
+                                </th>
+                                <th
+                                    style={{
+                                        ...styles.tableHeader,
+                                        textAlign: 'right',
+                                    }}>
+                                    Profit/Loss
+                                </th>
+                                <th
+                                    style={{
+                                        ...styles.tableHeader,
+                                        textAlign: 'right',
+                                    }}>
+                                    P/L %
+                                </th>
+                                <th
+                                    style={{
+                                        ...styles.tableHeader,
+                                        textAlign: 'center',
+                                    }}>
+                                    Status
+                                </th>
+                                <th
+                                    style={{
+                                        ...styles.tableHeader,
+                                        textAlign: 'center',
+                                    }}>
+                                    Actions
+                                </th>
+                            </tr>
                             </thead>
                             <tbody>
-                                {investments.length === 0 ? (
-                                    <tr>
+                            {portfolio.length === 0 ? (
+                                <tr>
+                                    <td
+                                        colSpan="11"
+                                        style={{
+                                            ...styles.tableCell,
+                                            ...styles.emptyState,
+                                        }}>
+                                        No investments added yet. Click "Add Investment" to get started!
+                                    </td>
+                                </tr>
+                            ) : (
+                                processedData.map(investment => (
+                                    <tr
+                                        key={investment.id}
+                                        style={{
+                                            ...styles.tableRow,
+                                            backgroundColor: investment.status === 'closed' ? 'rgba(148, 163, 184, 0.7)' : 'transparent',
+                                        }}
+                                    >
                                         <td
-                                            colSpan="11"
                                             style={{
                                                 ...styles.tableCell,
-                                                ...styles.emptyState,
+                                                textAlign: 'center',
+                                                fontSize: '12px',
+                                                color: '#94a3b8',
                                             }}>
-                                            No investments added yet. Click "Add Investment" to get started!
+                                            {investment.dateAdded ? new Date(investment.dateAdded).toLocaleDateString() : '—'}
+                                        </td>
+                                        <td style={styles.tableCell}>
+                                            <div style={styles.tokenInfo}>
+                                                <div style={styles.tokenName}>{investment.tokenName}</div>
+                                                <div style={styles.tokenSymbol}>{investment.symbol}</div>
+                                            </div>
+                                        </td>
+                                        <td style={styles.tableCell}>{investment.wallet || '—'}</td>
+                                        <td
+                                            style={{
+                                                ...styles.tableCell,
+                                                textAlign: 'right',
+                                            }}>
+                                            {investment.quantity.toFixed(6)}
+                                        </td>
+                                        <td
+                                            style={{
+                                                ...styles.tableCell,
+                                                textAlign: 'right',
+                                            }}>
+                                            ${investment.purchasePrice.toFixed(2)}
+                                        </td>
+                                        <td
+                                            style={{
+                                                ...styles.tableCell,
+                                                textAlign: 'right',
+                                            }}>
+                                            ${investment.amountPaid.toFixed(2)}
+                                        </td>
+                                        <td
+                                            style={{
+                                                ...styles.tableCell,
+                                                textAlign: 'right',
+                                            }}>
+                                            ${investment.currentPrice.toFixed(2)}
+                                        </td>
+                                        <td
+                                            style={{
+                                                ...styles.tableCell,
+                                                textAlign: 'right',
+                                                fontWeight: '600',
+                                            }}>
+                                            ${investment.currentValue.toFixed(2)}
+                                        </td>
+                                        <td
+                                            style={{
+                                                ...styles.tableCell,
+                                                textAlign: 'right',
+                                                fontWeight: '600',
+                                                color: investment.profitLoss >= 0 ? '#4ade80' : '#f87171',
+                                            }}>
+                                            ${investment.profitLoss.toFixed(2)}
+                                        </td>
+                                        <td
+                                            style={{
+                                                ...styles.tableCell,
+                                                textAlign: 'right',
+                                                fontWeight: '600',
+                                                color: investment.profitLossPercentage >= 0 ? '#4ade80' : '#f87171',
+                                            }}>
+                                            {investment.profitLossPercentage >= 0 ? '+' : ''}
+                                            {investment.profitLossPercentage.toFixed(2)}%
+                                        </td>
+                                        <td
+                                            style={{
+                                                ...styles.tableCell,
+                                                textAlign: 'center',
+                                                fontWeight: 'bold',
+                                                textTransform: 'capitalize',
+                                            }}>
+                                            {investment.status || 'open'}
+                                        </td>
+                                        <td
+                                            style={{
+                                                ...styles.tableCell,
+                                                textAlign: 'center',
+                                            }}>
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    gap: '2px',
+                                                }}>
+                                                <button onClick={() => handleEdit(investment)} title="Edit" style={styles.iconButton}>
+                                                    <Pencil size={16} />
+                                                </button>
+                                                <button onClick={() => handleRemove(investment.id)} title="Remove" style={styles.iconButtonRemove}>
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
-                                ) : (
-                                    processedData.map(investment => (
-                                        <tr
-                                            key={investment.id}
-                                            style={{
-                                                ...styles.tableRow,
-                                                backgroundColor: investment.status === 'closed' ? 'rgba(148, 163, 184, 0.7)' : 'transparent',
-                                            }}
-                                        >
-                                        <td
-                                                style={{
-                                                    ...styles.tableCell,
-                                                    textAlign: 'center',
-                                                    fontSize: '12px',
-                                                    color: '#94a3b8',
-                                                }}>
-                                                {investment.dateAdded ? new Date(investment.dateAdded).toLocaleDateString() : '—'}
-                                            </td>
-                                            <td style={styles.tableCell}>
-                                                <div style={styles.tokenInfo}>
-                                                    <div style={styles.tokenName}>{investment.tokenName}</div>
-                                                    <div style={styles.tokenSymbol}>{investment.symbol}</div>
-                                                </div>
-                                            </td>
-                                            <td style={styles.tableCell}>{investment.wallet || '—'}</td>
-                                            <td
-                                                style={{
-                                                    ...styles.tableCell,
-                                                    textAlign: 'right',
-                                                }}>
-                                                {investment.quantity.toFixed(6)}
-                                            </td>
-                                            <td
-                                                style={{
-                                                    ...styles.tableCell,
-                                                    textAlign: 'right',
-                                                }}>
-                                                ${investment.purchasePrice.toFixed(2)}
-                                            </td>
-                                            <td
-                                                style={{
-                                                    ...styles.tableCell,
-                                                    textAlign: 'right',
-                                                }}>
-                                                ${investment.amountPaid.toFixed(2)}
-                                            </td>
-                                            <td
-                                                style={{
-                                                    ...styles.tableCell,
-                                                    textAlign: 'right',
-                                                }}>
-                                                ${investment.currentPrice.toFixed(2)}
-                                            </td>
-                                            <td
-                                                style={{
-                                                    ...styles.tableCell,
-                                                    textAlign: 'right',
-                                                    fontWeight: '600',
-                                                }}>
-                                                ${investment.currentValue.toFixed(2)}
-                                            </td>
-                                            <td
-                                                style={{
-                                                    ...styles.tableCell,
-                                                    textAlign: 'right',
-                                                    fontWeight: '600',
-                                                    color: investment.profitLoss >= 0 ? '#4ade80' : '#f87171',
-                                                }}>
-                                                ${investment.profitLoss.toFixed(2)}
-                                            </td>
-                                            <td
-                                                style={{
-                                                    ...styles.tableCell,
-                                                    textAlign: 'right',
-                                                    fontWeight: '600',
-                                                    color: investment.profitLossPercentage >= 0 ? '#4ade80' : '#f87171',
-                                                }}>
-                                                {investment.profitLossPercentage >= 0 ? '+' : ''}
-                                                {investment.profitLossPercentage.toFixed(2)}%
-                                            </td>
-                                            <td
-                                                style={{
-                                                    ...styles.tableCell,
-                                                    textAlign: 'center',
-                                                    fontWeight: 'bold',
-                                                    textTransform: 'capitalize',
-                                                }}>
-                                                {investment.status || 'open'}
-                                            </td>
-                                            <td
-                                                style={{
-                                                    ...styles.tableCell,
-                                                    textAlign: 'center',
-                                                }}>
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        justifyContent: 'center',
-                                                        gap: '2px',
-                                                    }}>
-                                                    <button onClick={() => handleEdit(investment)} title="Edit" style={styles.iconButton}>
-                                                        <Pencil size={16} />
-                                                    </button>
-                                                    <button onClick={() => handleRemove(investment.id)} title="Remove" style={styles.iconButtonRemove}>
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
+                                ))
+                            )}
                             </tbody>
                         </table>
                     </div>

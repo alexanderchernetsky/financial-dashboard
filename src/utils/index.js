@@ -53,7 +53,6 @@ export const processCryptoTrackerData = cryptoTrackerData => {
     if (!cryptoTrackerData.length) return [];
 
     const data = [...cryptoTrackerData].sort((a, b) => {
-        console.log(a);
         return parseDate(b.dateAdded) - parseDate(a.dateAdded);
     });
 

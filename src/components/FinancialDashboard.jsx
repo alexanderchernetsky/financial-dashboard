@@ -42,7 +42,7 @@ const assetColors = {
 const FinancialDashboard = () => {
     const navigate = useNavigate();
     const investmentsRef = collection(db, 'portfolio');
-    const { data: investments, isLoading, error, isFetching } = useInvestmentsPolling();
+    const { data: investments, isLoading, error, isFetching, refetch } = useInvestmentsPolling();
 
     // State for UI operations
     const [snackbar, setSnackbar] = useState({
@@ -195,6 +195,7 @@ const FinancialDashboard = () => {
                     message: 'New entry added successfully',
                     severity: 'success',
                 });
+                await refetch();
             }
             setOpenDialog(false);
         } catch (error) {
@@ -231,6 +232,7 @@ const FinancialDashboard = () => {
             }
             setOpenDeleteDialog(false);
             setDeleteItem(null);
+            await refetch();
         } catch (error) {
             console.error('Error deleting data:', error);
             setSnackbar({

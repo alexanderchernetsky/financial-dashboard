@@ -60,7 +60,9 @@ const FinancialDashboard = () => {
         bonds: 0,
         etfs: 0,
         crypto: 0,
+        gold: 0,
     });
+
 
     // States for delete confirmation
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -142,6 +144,7 @@ const FinancialDashboard = () => {
             bonds: 0,
             etfs: 0,
             crypto: 0,
+            gold: 0,
         });
         setOpenDialog(true);
     };
@@ -154,6 +157,7 @@ const FinancialDashboard = () => {
             bonds: item.bonds,
             etfs: item.etfs,
             crypto: item.crypto,
+            gold: item.gold,
         });
         setOpenDialog(true);
     };
@@ -175,7 +179,7 @@ const FinancialDashboard = () => {
         try {
             const entryData = {
                 ...formData,
-                netWorth: formData.fiat + formData.bonds + formData.etfs + formData.crypto,
+                netWorth: formData.fiat + formData.bonds + formData.etfs + formData.crypto + formData.gold,
             };
 
             if (editItem) {
@@ -682,6 +686,17 @@ const FinancialDashboard = () => {
                             variant="outlined"
                             value={formData.crypto}
                             onChange={handleInputChange}
+                        />
+                        <TextField
+                            margin="dense"
+                            name="gold"
+                            label="Gold ($)"
+                            type="number"
+                            fullWidth
+                            variant="outlined"
+                            value={formData.gold}
+                            onChange={handleInputChange}
+                            sx={{ mb: 2 }}
                         />
                     </DialogContent>
                     <DialogActions>

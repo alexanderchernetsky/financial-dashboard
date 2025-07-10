@@ -8,7 +8,7 @@ import { AddCryptoInvestmentForm } from './AddCryptoInvestmentForm';
 import {processCryptoTrackerData} from "../../utils";
 
 const CryptoTracker = () => {
-    const { data: investments = [], refetch } = useInvestments();
+    const { data: investments = [] } = useInvestments();
     const addMutation = useAddInvestment();
     const removeMutation = useRemoveInvestment();
     const updateMutation = useUpdateInvestment();
@@ -397,7 +397,7 @@ const CryptoTracker = () => {
                                                 ...styles.tableCell,
                                                 textAlign: 'center',
                                                 fontSize: '12px',
-                                                color: '#94a3b8',
+                                                color: '#FFF',
                                             }}>
                                             {investment.dateAdded ? new Date(investment.dateAdded).toLocaleDateString() : '—'}
                                         </td>

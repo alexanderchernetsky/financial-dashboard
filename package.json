@@ -8,11 +8,6 @@
         "@mui/icons-material": "^6.4.6",
         "@mui/material": "^6.4.6",
         "@tanstack/react-query": "^5.81.5",
-        "@testing-library/dom": "^10.4.0",
-        "@testing-library/jest-dom": "^6.6.3",
-        "@testing-library/react": "^16.2.0",
-        "@testing-library/user-event": "^13.5.0",
-        "eslint-plugin-only-warn": "^1.1.0",
         "firebase": "^11.9.1",
         "firebase-tools": "^14.8.0",
         "lucide-react": "^0.523.0",
@@ -23,6 +18,14 @@
         "recharts": "^2.15.1",
         "tailwindcss": "^4.0.9",
         "web-vitals": "^2.1.4"
+    },
+    "devDependencies": {
+        "eslint": "^9.30.0",
+        "eslint-config-prettier": "^10.1.5",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.1.2",
+        "prettier": "^3.6.2",
+        "eslint-plugin-only-warn": "^1.1.0"
     },
     "scripts": {
         "start": "react-scripts start",
@@ -49,13 +52,6 @@
             "last 1 firefox version",
             "last 1 safari version"
         ]
-    },
-    "devDependencies": {
-        "eslint": "^9.30.0",
-        "eslint-config-prettier": "^10.1.5",
-        "husky": "^9.1.7",
-        "lint-staged": "^16.1.2",
-        "prettier": "^3.6.2"
     },
     "lint-staged": {
         "*.{js,jsx,ts,tsx}": [

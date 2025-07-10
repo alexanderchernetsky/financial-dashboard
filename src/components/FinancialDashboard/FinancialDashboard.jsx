@@ -27,10 +27,10 @@ import {
 } from '@mui/material';
 import { TrendingUp, TrendingDown, AttachMoney, Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../firebase';
+import { db } from '../../firebase';
 import { collection, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { formatCurrency, processPortfolioData } from '../utils';
-import { useInvestmentsPolling } from '../react-query/useInvestmentsPolling';
+import { formatCurrency, processPortfolioData } from '../../utils';
+import { useInvestmentsPolling } from '../../react-query/useInvestmentsPolling';
 
 const assetColors = {
     fiat: '#1976d2',
@@ -117,7 +117,7 @@ const FinancialDashboard = () => {
 
     // Custom label for pie chart
     const RADIAN = Math.PI / 180;
-    const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+    const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, percent, index }) => {
         const radius = outerRadius * 1.1;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
@@ -288,6 +288,10 @@ const FinancialDashboard = () => {
                 <Button variant="contained" color="primary" onClick={() => navigate('/crypto')} style={{ marginBottom: '16px' }}>
                     Go to Crypto Tracker
                 </Button>
+
+                {/*<Button variant="contained" color="primary" onClick={() => navigate('/etf')} style={{ marginBottom: '16px', 'margin-left': '16px' }}>*/}
+                {/*    Go to ETF Tracker*/}
+                {/*</Button>*/}
 
                 {/* Show loading indicator when fetching */}
                 {isFetching && (
@@ -515,7 +519,7 @@ const FinancialDashboard = () => {
                                     ))}
                                 </Pie>
                                 <Tooltip
-                                    formatter={(value, name, props) => {
+                                    formatter={(value, name) => {
                                         return [formatCurrency(value), name, `${((value / (currentMonthData?.netWorth || 1)) * 100).toFixed(1)}%`];
                                     }}
                                 />

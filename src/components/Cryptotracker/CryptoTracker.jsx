@@ -23,7 +23,8 @@ const CryptoTracker = () => {
         amountPaid: '',
         wallet: '',
         dateAdded: '',
-        status: 'open', // New field, default to 'open'
+        status: 'open',
+        sold: '',
     });
 
     // edit
@@ -103,6 +104,7 @@ const CryptoTracker = () => {
             wallet: investment.wallet || '',
             dateAdded: investment.dateAdded || '',
             status: investment.status || 'open',
+            sold: investment.sold?.toString() || '',
         });
         setEditingInvestment(investment);
         setShowAddForm(true);
@@ -118,6 +120,7 @@ const CryptoTracker = () => {
         const qty = parseFloat(quantity);
         const price = parseFloat(purchasePrice);
         const paid = amountPaid ? parseFloat(amountPaid) : qty * price;
+        const sold = formData.sold ? parseFloat(formData.sold) : 0;
 
         setLoading(true);
         try {
@@ -139,6 +142,7 @@ const CryptoTracker = () => {
                     quantity: qty,
                     purchasePrice: price,
                     amountPaid: paid,
+                    sold: sold,
                     currentPrice,
                     currentValue,
                     profitLoss,
@@ -158,6 +162,7 @@ const CryptoTracker = () => {
                     quantity: qty,
                     purchasePrice: price,
                     amountPaid: paid,
+                    sold: sold,
                     currentPrice,
                     currentValue,
                     profitLoss,
@@ -171,11 +176,13 @@ const CryptoTracker = () => {
                 await addMutation.mutateAsync(newInvestment);
             }
 
+            // clear form
             setFormData({
                 tokenName: '',
                 symbol: '',
                 quantity: '',
                 purchasePrice: '',
+                sold: '',
                 amountPaid: '',
                 wallet: '',
                 dateAdded: '',
@@ -355,6 +362,7 @@ const CryptoTracker = () => {
                                     }}>
                                     P/L %
                                 </th>
+                                <th style={{ ...styles.tableHeader, textAlign: 'center' }}>Sold %</th>
                                 <th
                                     style={{
                                         ...styles.tableHeader,
@@ -462,6 +470,9 @@ const CryptoTracker = () => {
                                             }}>
                                             {investment.profitLossPercentage >= 0 ? '+' : ''}
                                             {investment.profitLossPercentage.toFixed(2)}%
+                                        </td>
+                                        <td style={{ ...styles.tableCell, textAlign: 'center' }}>
+                                            {investment.sold ? `${investment.sold}%` : '—'}
                                         </td>
                                         <td
                                             style={{

@@ -1,6 +1,14 @@
 import { styles } from '../../styles';
 
-export const AddCryptoInvestmentForm = ({ formData, setFormData, handleSubmit, loading, editingInvestment, setShowAddForm, setEditingInvestment }) => {
+export const AddCryptoInvestmentForm = ({
+                                            formData,
+                                            setFormData,
+                                            handleSubmit,
+                                            loading,
+                                            editingInvestment,
+                                            setShowAddForm,
+                                            setEditingInvestment,
+                                        }) => {
     const handleCancel = () => {
         if (editingInvestment) {
             setEditingInvestment(null);
@@ -13,6 +21,7 @@ export const AddCryptoInvestmentForm = ({ formData, setFormData, handleSubmit, l
                 wallet: '',
                 dateAdded: '',
                 status: 'open',
+                sold: '', // Reset sold field
             });
         }
         setShowAddForm(false);
@@ -30,6 +39,7 @@ export const AddCryptoInvestmentForm = ({ formData, setFormData, handleSubmit, l
                 {editingInvestment ? 'Edit Investment' : 'Add New Investment'}
             </h2>
             <div style={styles.formGrid}>
+                {/* Other Fields */}
                 <div style={styles.formGroup}>
                     <label style={styles.label}>Date of Purchase</label>
                     <input
@@ -127,14 +137,39 @@ export const AddCryptoInvestmentForm = ({ formData, setFormData, handleSubmit, l
                         style={styles.input}
                     />
                 </div>
+
+                {/* ✅ New Sold Field */}
+                <div style={styles.formGroup}>
+                    <label style={styles.label}>Sold (%)</label>
+                    <input
+                        type="number"
+                        step="any"
+                        min="0"
+                        max="100"
+                        value={formData.sold || ''}
+                        onChange={e =>
+                            setFormData({
+                                ...formData,
+                                sold: e.target.value,
+                            })
+                        }
+                        placeholder="e.g., 25"
+                        style={styles.input}
+                    />
+                </div>
+
                 <div style={styles.formGroup}>
                     <label style={styles.label}>Status</label>
-                    <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} style={styles.input}>
+                    <select
+                        value={formData.status}
+                        onChange={e => setFormData({ ...formData, status: e.target.value })}
+                        style={styles.input}>
                         <option value="open">Open</option>
                         <option value="closed">Closed</option>
                     </select>
                 </div>
             </div>
+
             <div style={styles.buttonGroup}>
                 <button
                     onClick={handleSubmit}

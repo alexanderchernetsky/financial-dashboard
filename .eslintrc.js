@@ -1,7 +1,7 @@
 require('eslint-plugin-only-warn');
 
 module.exports = {
-    extends: ['eslint:recommended', 'prettier'],
+    extends: ['eslint:recommended', 'prettier', "react-app"],
     env: {
         node: true,
         es2021: true,

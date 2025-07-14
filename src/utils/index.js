@@ -52,7 +52,13 @@ export const processPortfolioData = portfolioData => {
 export const processCryptoTrackerData = cryptoTrackerData => {
     if (!cryptoTrackerData.length) return [];
 
-    const data = [...cryptoTrackerData].sort((a, b) => {
+    // First sort alphabetically by tokenName
+    const alphabeticallySorted = [...cryptoTrackerData].sort((a, b) =>
+        a.tokenName.localeCompare(b.tokenName)
+    );
+
+    // Next sort by date
+    const data = [...alphabeticallySorted].sort((a, b) => {
         return parseDate(b.dateAdded) - parseDate(a.dateAdded);
     });
 

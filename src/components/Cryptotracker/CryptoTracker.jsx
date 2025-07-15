@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DollarSign, RefreshCw, Plus, Pencil, Trash2 } from 'lucide-react';
+import { DollarSign, RefreshCw, Plus, Pencil, Trash2, Filter } from 'lucide-react';
 import { useInvestments, useAddInvestment, useRemoveInvestment, useUpdateInvestment } from '../../react-query/useInvestments';
 import { fetchPrices } from '../../utils/api/getPrices';
 import { styles } from '../../styles';
@@ -15,6 +15,7 @@ const CryptoTracker = () => {
 
     const [showAddForm, setShowAddForm] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [showClosedPositions, setShowClosedPositions] = useState(false);
     const [formData, setFormData] = useState({
         tokenName: '',
         symbol: '',
@@ -208,15 +209,24 @@ const CryptoTracker = () => {
     };
 
     const portfolio = updatedInvestments.length ? updatedInvestments : investments;
-    const totalInvested = portfolio.reduce((sum, i) => sum + i.amountPaid, 0);
-    const totalCurrentValue = portfolio.reduce((sum, i) => sum + (i.currentValue ?? 0), 0);
+
+    // Filter portfolio based on showClosedPositions toggle
+    const filteredPortfolio = showClosedPositions
+        ? portfolio
+        : portfolio.filter(investment => investment.status !== 'closed');
+
+    const totalInvested = filteredPortfolio.reduce((sum, i) => sum + i.amountPaid, 0);
+    const totalCurrentValue = filteredPortfolio.reduce((sum, i) => sum + (i.currentValue ?? 0), 0);
     const totalProfitLoss = totalCurrentValue - totalInvested;
     const totalProfitLossPercentage = totalInvested > 0 ? (totalProfitLoss / totalInvested) * 100 : 0;
 
-    // Process data (sort by date) - FIXED: Use portfolio instead of investments
+    // Process data (sort by date) - Use filtered portfolio
     const processedData = React.useMemo(() => {
-        return processCryptoTrackerData(portfolio);
-    }, [portfolio]); // FIXED: Use portfolio as dependency instead of investments
+        return processCryptoTrackerData(filteredPortfolio);
+    }, [filteredPortfolio]);
+
+    // Count closed positions for the filter button
+    const closedPositionsCount = portfolio.filter(inv => inv.status === 'closed').length;
 
     return (
         <div style={styles.container}>
@@ -249,6 +259,29 @@ const CryptoTracker = () => {
                                     }}
                                 />
                                 Refresh Prices
+                            </button>
+                            <button
+                                onClick={() => setShowClosedPositions(!showClosedPositions)}
+                                style={{
+                                    ...styles.button,
+                                    ...(showClosedPositions ? styles.buttonPrimary : styles.buttonSecondary),
+                                    opacity: closedPositionsCount === 0 ? 0.5 : 1,
+                                }}
+                                disabled={closedPositionsCount === 0}
+                                onMouseOver={e => {
+                                    if (closedPositionsCount > 0) {
+                                        e.target.style.backgroundColor = showClosedPositions
+                                            ? styles.buttonPrimaryHover.backgroundColor
+                                            : styles.buttonSecondaryHover?.backgroundColor || '#374151';
+                                    }
+                                }}
+                                onMouseOut={e => {
+                                    e.target.style.backgroundColor = showClosedPositions
+                                        ? styles.buttonPrimary.backgroundColor
+                                        : styles.buttonSecondary?.backgroundColor || '#4b5563';
+                                }}>
+                                <Filter style={{ width: '16px', height: '16px' }} />
+                                {showClosedPositions ? 'Hide' : 'Show'} Closed ({closedPositionsCount})
                             </button>
                             <button
                                 onClick={() => setShowAddForm(!showAddForm)}
@@ -380,15 +413,20 @@ const CryptoTracker = () => {
                             </tr>
                             </thead>
                             <tbody>
-                            {portfolio.length === 0 ? (
+                            {filteredPortfolio.length === 0 ? (
                                 <tr>
                                     <td
-                                        colSpan="11"
+                                        colSpan="13"
                                         style={{
                                             ...styles.tableCell,
                                             ...styles.emptyState,
                                         }}>
-                                        No investments added yet. Click "Add Investment" to get started!
+                                        {portfolio.length === 0
+                                            ? "No investments added yet. Click \"Add Investment\" to get started!"
+                                            : showClosedPositions
+                                                ? "No closed positions found."
+                                                : "No open positions found. Toggle \"Show Closed\" to view closed positions."
+                                        }
                                     </td>
                                 </tr>
                             ) : (

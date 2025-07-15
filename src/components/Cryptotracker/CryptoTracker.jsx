@@ -227,6 +227,7 @@ const CryptoTracker = () => {
 
     // Count closed positions for the filter button
     const closedPositionsCount = portfolio.filter(inv => inv.status === 'closed').length;
+    const realisedProfitLoss = portfolio.filter(inv => inv.status === 'closed').reduce((sum, i) => sum + (i.currentValue - i.amountPaid), 0);
 
     return (
         <div style={styles.container}>
@@ -303,6 +304,7 @@ const CryptoTracker = () => {
                         totalCurrentValue={totalCurrentValue}
                         totalProfitLoss={totalProfitLoss}
                         totalProfitLossPercentage={totalProfitLossPercentage}
+                        realisedProfitLoss={realisedProfitLoss}
                     />
                 </div>
 

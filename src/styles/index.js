@@ -73,7 +73,8 @@ export const styles = {
     },
     summaryGrid: {
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gridTemplateColumns: 'repeat(4, 1fr)', // 4 equal columns
+        gridTemplateRows: 'repeat(2, auto)',   // 2 rows, height adjusts to content
         gap: '16px',
     },
     summaryCard: {

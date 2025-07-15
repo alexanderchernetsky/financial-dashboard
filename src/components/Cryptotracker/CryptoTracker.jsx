@@ -33,6 +33,10 @@ const CryptoTracker = () => {
 
     const [updatedInvestments, setUpdatedInvestments] = useState([]);
 
+    // sorting
+    const [sortByPL, setSortByPL] = useState(false);
+    const [sortPLPercentageAsc, setSortPLPercentageAsc] = useState(true);
+
     useEffect(() => {
         if (!investments || investments.length === 0) return;
         updatePrices();
@@ -220,10 +224,19 @@ const CryptoTracker = () => {
     const totalProfitLoss = totalCurrentValue - totalInvested;
     const totalProfitLossPercentage = totalInvested > 0 ? (totalProfitLoss / totalInvested) * 100 : 0;
 
-    // Process data (sort by date) - Use filtered portfolio
+    // That's the data which is shown in the table, sorting is done here
     const processedData = React.useMemo(() => {
-        return processCryptoTrackerData(filteredPortfolio);
-    }, [filteredPortfolio]);
+        const processed = processCryptoTrackerData(filteredPortfolio);
+        if (!sortByPL) return processed;
+
+        const sorted = [...processed].sort((a, b) => {
+            const aVal = a.profitLossPercentage ?? 0;
+            const bVal = b.profitLossPercentage ?? 0;
+            return sortPLPercentageAsc ? aVal - bVal : bVal - aVal;
+        });
+
+        return sorted;
+    }, [filteredPortfolio, sortByPL, sortPLPercentageAsc]);
 
     // Count closed positions for the filter button
     const closedPositionsCount = portfolio.filter(inv => inv.status === 'closed').length;
@@ -387,8 +400,19 @@ const CryptoTracker = () => {
                                     style={{
                                         ...styles.tableHeader,
                                         textAlign: 'right',
-                                    }}>
-                                    P/L %
+                                        cursor: 'pointer',
+                                        userSelect: 'none',
+                                    }}
+                                    onClick={() => {
+                                        if (!sortByPL) {
+                                            setSortByPL(true); // Activate sorting
+                                        } else {
+                                            setSortPLPercentageAsc(prev => !prev); // Toggle direction
+                                        }
+                                    }}
+                                    title="Click to sort by P/L %"
+                                >
+                                    P/L % {sortByPL ? (sortPLPercentageAsc ? '↑' : '↓') : ''}
                                 </th>
                                 <th style={{ ...styles.tableHeader, textAlign: 'center' }}>Sold %</th>
                                 <th

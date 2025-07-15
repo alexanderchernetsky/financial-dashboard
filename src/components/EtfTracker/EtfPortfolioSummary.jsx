@@ -1,6 +1,6 @@
 import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import { styles } from '../../styles';
+import { styles } from '../Cryptotracker';
 
 export const EtfPortfolioSummary = ({
                                         totalInvested,

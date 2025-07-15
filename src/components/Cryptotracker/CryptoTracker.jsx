@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { DollarSign, RefreshCw, Plus, Pencil, Trash2, Filter } from 'lucide-react';
 import { useInvestments, useAddInvestment, useRemoveInvestment, useUpdateInvestment } from '../../react-query/useInvestments';
 import { fetchPrices } from '../../utils/api/getPrices';
-import { styles } from '../../styles';
+import { styles } from './CryptoTrackerStyles';
 import { CryptoPortfolioSummary } from './CryptoPortfolioSummary';
 import { AddCryptoInvestmentForm } from './AddCryptoInvestmentForm';
 import {processCryptoTrackerData} from "../../utils";

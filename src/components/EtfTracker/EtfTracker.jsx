@@ -7,7 +7,7 @@ import {
     useUpdateEtfInvestment
 } from '../../react-query/useEtfInvestments';
 import { fetchEtfPrices } from '../../utils/api/getEtfPrices';
-import { styles } from '../../styles';
+import { styles } from '../Cryptotracker';
 import { processCryptoTrackerData } from '../../utils';
 import {AddEtfInvestmentsForm} from "./AddEtfInvestmentsForm";
 import {EtfPortfolioSummary} from "./EtfPortfolioSummary";

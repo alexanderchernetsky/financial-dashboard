@@ -1,4 +1,4 @@
-import { styles } from '../../styles';
+import { styles } from '../Cryptotracker';
 
 export const AddEtfInvestmentsForm = ({
                                           formData,

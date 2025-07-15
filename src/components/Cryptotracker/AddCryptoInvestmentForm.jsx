@@ -1,4 +1,5 @@
-import { styles } from '../../styles';
+import React from 'react';
+import './AddCryptoInvestmentForm.css'; // new CSS file
 
 export const AddCryptoInvestmentForm = ({
                                             formData,
@@ -20,186 +21,130 @@ export const AddCryptoInvestmentForm = ({
                 amountPaid: '',
                 dateAdded: '',
                 status: 'open',
-                sold: '', // Reset sold field
-                notes: '', // Reset notes field
+                sold: '',
+                notes: '',
             });
         }
         setShowAddForm(false);
     };
 
     return (
-        <div style={styles.card}>
-            <h2
-                style={{
-                    color: 'white',
-                    marginBottom: '20px',
-                    fontSize: '1.25rem',
-                    fontWeight: 'bold',
-                }}>
-                {editingInvestment ? 'Edit Investment' : 'Add New Investment'}
-            </h2>
-            <div style={styles.formGrid}>
-                {/* Other Fields */}
-                <div style={styles.formGroup}>
-                    <label style={styles.label}>Date of Purchase</label>
+        <div className="card">
+            <h2 className="formTitle">{editingInvestment ? 'Edit Investment' : 'Add New Investment'}</h2>
+            <div className="formGrid">
+                <div className="formGroup">
+                    <label className="label">Date of Purchase</label>
                     <input
                         type="date"
                         value={formData.dateAdded}
-                        onChange={e =>
-                            setFormData({
-                                ...formData,
-                                dateAdded: e.target.value,
-                            })
-                        }
-                        style={styles.input}
+                        onChange={e => setFormData({ ...formData, dateAdded: e.target.value })}
+                        className="input"
                     />
                 </div>
-                <div style={styles.formGroup}>
-                    <label style={styles.label}>Token Name*</label>
+                <div className="formGroup">
+                    <label className="label">Token Name*</label>
                     <input
                         type="text"
                         value={formData.tokenName}
-                        onChange={e =>
-                            setFormData({
-                                ...formData,
-                                tokenName: e.target.value,
-                            })
-                        }
+                        onChange={e => setFormData({ ...formData, tokenName: e.target.value })}
                         placeholder="e.g., Bitcoin"
-                        style={styles.input}
+                        className="input"
                     />
                 </div>
-                <div style={styles.formGroup}>
-                    <label style={styles.label}>Symbol (CoinGecko ID)*</label>
+                <div className="formGroup">
+                    <label className="label">Symbol (CoinGecko ID)*</label>
                     <input
                         type="text"
                         value={formData.symbol}
                         onChange={e => setFormData({ ...formData, symbol: e.target.value })}
                         placeholder="e.g., bitcoin"
-                        style={styles.input}
+                        className="input"
                     />
                 </div>
-                <div style={styles.formGroup}>
-                    <label style={styles.label}>Quantity*</label>
+                <div className="formGroup">
+                    <label className="label">Quantity*</label>
                     <input
                         type="number"
                         step="any"
                         value={formData.quantity}
-                        onChange={e =>
-                            setFormData({
-                                ...formData,
-                                quantity: e.target.value,
-                            })
-                        }
+                        onChange={e => setFormData({ ...formData, quantity: e.target.value })}
                         placeholder="0.00"
-                        style={styles.input}
+                        className="input"
                     />
                 </div>
-                <div style={styles.formGroup}>
-                    <label style={styles.label}>Purchase Price*</label>
+                <div className="formGroup">
+                    <label className="label">Purchase Price*</label>
                     <input
                         type="number"
                         step="any"
                         value={formData.purchasePrice}
-                        onChange={e =>
-                            setFormData({
-                                ...formData,
-                                purchasePrice: e.target.value,
-                            })
-                        }
+                        onChange={e => setFormData({ ...formData, purchasePrice: e.target.value })}
                         placeholder="0.00"
-                        style={styles.input}
+                        className="input"
                     />
                 </div>
-                <div style={styles.formGroup}>
-                    <label style={styles.label}>Amount Paid (optional)</label>
+                <div className="formGroup">
+                    <label className="label">Amount Paid (optional)</label>
                     <input
                         type="number"
                         step="any"
                         value={formData.amountPaid}
-                        onChange={e =>
-                            setFormData({
-                                ...formData,
-                                amountPaid: e.target.value,
-                            })
-                        }
+                        onChange={e => setFormData({ ...formData, amountPaid: e.target.value })}
                         placeholder="Auto-calculated"
-                        style={styles.input}
+                        className="input"
                     />
                 </div>
-
-                {/* ✅ New Sold Field */}
-                <div style={styles.formGroup}>
-                    <label style={styles.label}>Sold (%)</label>
+                <div className="formGroup">
+                    <label className="label">Sold (%)</label>
                     <input
                         type="number"
                         step="any"
                         min="0"
                         max="100"
                         value={formData.sold || ''}
-                        onChange={e =>
-                            setFormData({
-                                ...formData,
-                                sold: e.target.value,
-                            })
-                        }
+                        onChange={e => setFormData({ ...formData, sold: e.target.value })}
                         placeholder="e.g., 25"
-                        style={styles.input}
+                        className="input"
                     />
                 </div>
-
-                <div style={styles.formGroup}>
-                    <label style={styles.label}>Status</label>
+                <div className="formGroup">
+                    <label className="label">Status</label>
                     <select
                         value={formData.status}
                         onChange={e => setFormData({ ...formData, status: e.target.value })}
-                        style={styles.input}>
+                        className="input"
+                    >
                         <option value="open">Open</option>
                         <option value="closed">Closed</option>
                     </select>
                 </div>
-
-                {/* ✅ New Notes Field */}
-                <div style={{ ...styles.formGroup, gridColumn: '1 / -1' }}>
-                    <label style={styles.label}>Notes</label>
+                <div className="formGroup fullWidth">
+                    <label className="label">Notes</label>
                     <textarea
                         value={formData.notes || ''}
-                        onChange={e =>
-                            setFormData({
-                                ...formData,
-                                notes: e.target.value,
-                            })
-                        }
+                        onChange={e => setFormData({ ...formData, notes: e.target.value })}
                         placeholder="Add any additional notes about this investment..."
-                        style={{
-                            ...styles.input,
-                            minHeight: '80px',
-                            resize: 'vertical',
-                            fontFamily: 'inherit',
-                        }}
+                        className="input textarea"
                         rows="3"
                     />
                 </div>
             </div>
 
-            <div style={styles.buttonGroup}>
+            <div className="buttonGroup">
                 <button
                     onClick={handleSubmit}
                     disabled={loading}
-                    style={{
-                        ...styles.button,
-                        ...styles.buttonSuccess,
-                        opacity: loading ? 0.5 : 1,
-                    }}
-                    onMouseOver={e => !loading && (e.target.style.backgroundColor = styles.buttonSuccessHover.backgroundColor)}
-                    onMouseOut={e => (e.target.style.backgroundColor = styles.buttonSuccess.backgroundColor)}>
+                    className={`button buttonSuccess${loading ? ' disabled' : ''}`}
+                >
                     {editingInvestment ? 'Update Investment' : 'Add Investment'}
                 </button>
-                <button onClick={handleCancel} style={{ ...styles.button, ...styles.buttonSecondary }}>
+                <button onClick={handleCancel} className="button buttonSecondary">
                     Cancel
                 </button>
             </div>
-            <div style={styles.note}>* Use CoinGecko IDs for symbols (e.g., 'bitcoin', 'ethereum', 'cardano'). Check coingecko.com for exact IDs.</div>
+            <div className="note">
+                * Use CoinGecko IDs for symbols (e.g., 'bitcoin', 'ethereum', 'cardano'). Check coingecko.com for exact IDs.
+            </div>
         </div>
     );
 };

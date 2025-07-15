@@ -1,6 +1,6 @@
 import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import { styles } from '../../styles';
+import './CryptoPortfolioSummary.css'; // assuming CSS file
 
 export const CryptoPortfolioSummary = ({
                                            totalInvested,
@@ -10,61 +10,52 @@ export const CryptoPortfolioSummary = ({
                                            realisedProfitLoss,
                                        }) => {
     return (
-        <div style={styles.summaryGrid}>
-            <div style={styles.summaryCard}>
-                <div style={styles.summaryLabel}>Total Invested</div>
-                <div style={styles.summaryValue}>${totalInvested.toFixed(2)}</div>
+        <div className="summaryGrid">
+            <div className="summaryCard">
+                <div className="summaryLabel">Total Invested</div>
+                <div className="summaryValue">${totalInvested.toFixed(2)}</div>
             </div>
-            <div style={styles.summaryCard}>
-                <div style={styles.summaryLabel}>Current Value</div>
-                <div style={styles.summaryValue}>${totalCurrentValue.toFixed(2)}</div>
+            <div className="summaryCard">
+                <div className="summaryLabel">Current Value</div>
+                <div className="summaryValue">${totalCurrentValue.toFixed(2)}</div>
             </div>
-            <div style={styles.summaryCard}>
-                <div style={styles.summaryLabel}>Profit/Loss</div>
+            <div className="summaryCard">
+                <div className="summaryLabel">Profit/Loss</div>
                 <div
-                    style={{
-                        ...styles.summaryValue,
-                        color: totalProfitLoss >= 0 ? '#4ade80' : '#f87171',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                    }}
+                    className={`summaryValue ${
+                        totalProfitLoss >= 0 ? 'positive' : 'negative'
+                    } iconValue`}
                 >
                     {totalProfitLoss >= 0 ? (
-                        <TrendingUp style={{ width: '16px', height: '16px' }} />
+                        <TrendingUp className="icon" />
                     ) : (
-                        <TrendingDown style={{ width: '16px', height: '16px' }} />
+                        <TrendingDown className="icon" />
                     )}
                     ${totalProfitLoss.toFixed(2)}
                 </div>
             </div>
-            <div style={styles.summaryCard}>
-                <div style={styles.summaryLabel}>Profit/Loss %</div>
+            <div className="summaryCard">
+                <div className="summaryLabel">Profit/Loss %</div>
                 <div
-                    style={{
-                        ...styles.summaryValue,
-                        color: totalProfitLossPercentage >= 0 ? '#4ade80' : '#f87171',
-                    }}
+                    className={`summaryValue ${
+                        totalProfitLossPercentage >= 0 ? 'positive' : 'negative'
+                    }`}
                 >
                     {totalProfitLossPercentage >= 0 ? '+' : ''}
                     {totalProfitLossPercentage.toFixed(2)}%
                 </div>
             </div>
-            <div style={styles.summaryCard}>
-                <div style={styles.summaryLabel}>Realised P/L</div>
+            <div className="summaryCard">
+                <div className="summaryLabel">Realised P/L</div>
                 <div
-                    style={{
-                        ...styles.summaryValue,
-                        color: realisedProfitLoss >= 0 ? '#4ade80' : '#f87171',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                    }}
+                    className={`summaryValue ${
+                        realisedProfitLoss >= 0 ? 'positive' : 'negative'
+                    } iconValue`}
                 >
                     {realisedProfitLoss >= 0 ? (
-                        <TrendingUp style={{ width: '16px', height: '16px' }} />
+                        <TrendingUp className="icon" />
                     ) : (
-                        <TrendingDown style={{ width: '16px', height: '16px' }} />
+                        <TrendingDown className="icon" />
                     )}
                     ${realisedProfitLoss.toFixed(2)}
                 </div>

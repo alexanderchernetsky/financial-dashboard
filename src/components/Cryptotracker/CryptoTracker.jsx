@@ -420,7 +420,7 @@ const CryptoTracker = () => {
                                                 ...styles.tableCell,
                                                 textAlign: 'right',
                                             }}>
-                                            {investment.quantity.toFixed(6)}
+                                            {investment.quantity.toFixed(4)}
                                         </td>
                                         <td
                                             style={{
@@ -490,6 +490,8 @@ const CryptoTracker = () => {
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap',
+                                                fontSize: '12px',
+                                                color: '#d1d5db',
                                             }}
                                             title={investment.notes || ''}
                                         >

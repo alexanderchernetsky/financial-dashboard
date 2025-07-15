@@ -22,6 +22,7 @@ export const AddCryptoInvestmentForm = ({
                 dateAdded: '',
                 status: 'open',
                 sold: '', // Reset sold field
+                notes: '', // Reset notes field
             });
         }
         setShowAddForm(false);
@@ -167,6 +168,28 @@ export const AddCryptoInvestmentForm = ({
                         <option value="open">Open</option>
                         <option value="closed">Closed</option>
                     </select>
+                </div>
+
+                {/* ✅ New Notes Field */}
+                <div style={{ ...styles.formGroup, gridColumn: '1 / -1' }}>
+                    <label style={styles.label}>Notes</label>
+                    <textarea
+                        value={formData.notes || ''}
+                        onChange={e =>
+                            setFormData({
+                                ...formData,
+                                notes: e.target.value,
+                            })
+                        }
+                        placeholder="Add any additional notes about this investment..."
+                        style={{
+                            ...styles.input,
+                            minHeight: '80px',
+                            resize: 'vertical',
+                            fontFamily: 'inherit',
+                        }}
+                        rows="3"
+                    />
                 </div>
             </div>
 

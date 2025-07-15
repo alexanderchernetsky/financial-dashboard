@@ -25,6 +25,7 @@ const CryptoTracker = () => {
         dateAdded: '',
         status: 'open',
         sold: '',
+        notes: '',
     });
 
     // edit
@@ -105,6 +106,7 @@ const CryptoTracker = () => {
             dateAdded: investment.dateAdded || '',
             status: investment.status || 'open',
             sold: investment.sold?.toString() || '',
+            notes: investment.notes || '',
         });
         setEditingInvestment(investment);
         setShowAddForm(true);
@@ -151,6 +153,7 @@ const CryptoTracker = () => {
                     lastUpdated: new Date().toLocaleTimeString(),
                     wallet: formData.wallet || '',
                     status: formData.status || 'open',
+                    notes: formData.notes || '',
                 };
 
                 await updateMutation.mutateAsync(updated);
@@ -171,6 +174,7 @@ const CryptoTracker = () => {
                     lastUpdated: new Date().toLocaleTimeString(),
                     wallet: formData.wallet || '',
                     status: formData.status || 'open',
+                    notes: formData.notes || '',
                 };
 
                 await addMutation.mutateAsync(newInvestment);
@@ -187,6 +191,7 @@ const CryptoTracker = () => {
                 wallet: '',
                 dateAdded: '',
                 status: 'open',
+                notes: '',
             });
             setShowAddForm(false);
             setEditingInvestment(null);
@@ -373,6 +378,13 @@ const CryptoTracker = () => {
                                 <th
                                     style={{
                                         ...styles.tableHeader,
+                                        textAlign: 'left',
+                                    }}>
+                                    Notes
+                                </th>
+                                <th
+                                    style={{
+                                        ...styles.tableHeader,
                                         textAlign: 'center',
                                     }}>
                                     Actions
@@ -482,6 +494,19 @@ const CryptoTracker = () => {
                                                 textTransform: 'capitalize',
                                             }}>
                                             {investment.status || 'open'}
+                                        </td>
+                                        <td
+                                            style={{
+                                                ...styles.tableCell,
+                                                textAlign: 'left',
+                                                maxWidth: '150px',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                            }}
+                                            title={investment.notes || ''}
+                                        >
+                                            {investment.notes || '—'}
                                         </td>
                                         <td
                                             style={{

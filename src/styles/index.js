@@ -6,7 +6,7 @@ export const styles = {
         fontFamily: 'system-ui, -apple-system, sans-serif',
     },
     maxWidth: {
-        maxWidth: '1400px',
+        maxWidth: '1500px',
         margin: '0 auto',
     },
     card: {

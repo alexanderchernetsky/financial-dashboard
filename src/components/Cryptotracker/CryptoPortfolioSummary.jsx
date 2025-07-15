@@ -1,6 +1,6 @@
 import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import './CryptoPortfolioSummary.css'; // assuming CSS file
+import './CryptoPortfolioSummary.css';
 
 export const CryptoPortfolioSummary = ({
                                            totalInvested,

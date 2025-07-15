@@ -1,5 +1,5 @@
 import React from 'react';
-import './AddCryptoInvestmentForm.css'; // new CSS file
+import './AddCryptoInvestmentForm.css';
 
 export const AddCryptoInvestmentForm = ({
                                             formData,

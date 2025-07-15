@@ -7,6 +7,7 @@ import { CryptoPortfolioSummary } from './CryptoPortfolioSummary';
 import { AddCryptoInvestmentForm } from './AddCryptoInvestmentForm';
 import {processCryptoTrackerData} from "../../utils";
 
+// todo: refactor using css instead of inline styles
 const CryptoTracker = () => {
     const { data: investments = [] } = useInvestments();
     const addMutation = useAddInvestment();

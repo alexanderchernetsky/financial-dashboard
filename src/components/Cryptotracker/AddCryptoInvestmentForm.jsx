@@ -18,7 +18,6 @@ export const AddCryptoInvestmentForm = ({
                 quantity: '',
                 purchasePrice: '',
                 amountPaid: '',
-                wallet: '',
                 dateAdded: '',
                 status: 'open',
                 sold: '', // Reset sold field
@@ -67,16 +66,6 @@ export const AddCryptoInvestmentForm = ({
                             })
                         }
                         placeholder="e.g., Bitcoin"
-                        style={styles.input}
-                    />
-                </div>
-                <div style={styles.formGroup}>
-                    <label style={styles.label}>Wallet / Exchange</label>
-                    <input
-                        type="text"
-                        value={formData.wallet || ''}
-                        onChange={e => setFormData({ ...formData, wallet: e.target.value })}
-                        placeholder="e.g., Binance, MetaMask"
                         style={styles.input}
                     />
                 </div>

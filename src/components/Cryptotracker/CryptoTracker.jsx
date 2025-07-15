@@ -21,7 +21,6 @@ const CryptoTracker = () => {
         quantity: '',
         purchasePrice: '',
         amountPaid: '',
-        wallet: '',
         dateAdded: '',
         status: 'open',
         sold: '',
@@ -102,7 +101,6 @@ const CryptoTracker = () => {
             quantity: investment.quantity.toString(),
             purchasePrice: investment.purchasePrice.toString(),
             amountPaid: investment.amountPaid.toString(),
-            wallet: investment.wallet || '',
             dateAdded: investment.dateAdded || '',
             status: investment.status || 'open',
             sold: investment.sold?.toString() || '',
@@ -151,7 +149,6 @@ const CryptoTracker = () => {
                     profitLossPercentage,
                     dateAdded: formData.dateAdded || new Date().toLocaleDateString(),
                     lastUpdated: new Date().toLocaleTimeString(),
-                    wallet: formData.wallet || '',
                     status: formData.status || 'open',
                     notes: formData.notes || '',
                 };
@@ -172,7 +169,6 @@ const CryptoTracker = () => {
                     profitLossPercentage,
                     dateAdded: formData.dateAdded || new Date().toLocaleDateString(),
                     lastUpdated: new Date().toLocaleTimeString(),
-                    wallet: formData.wallet || '',
                     status: formData.status || 'open',
                     notes: formData.notes || '',
                 };
@@ -188,7 +184,6 @@ const CryptoTracker = () => {
                 purchasePrice: '',
                 sold: '',
                 amountPaid: '',
-                wallet: '',
                 dateAdded: '',
                 status: 'open',
                 notes: '',
@@ -314,13 +309,6 @@ const CryptoTracker = () => {
                                 <th
                                     style={{
                                         ...styles.tableHeader,
-                                        textAlign: 'left',
-                                    }}>
-                                    Wallet / Exchange
-                                </th>
-                                <th
-                                    style={{
-                                        ...styles.tableHeader,
                                         textAlign: 'right',
                                     }}>
                                     Quantity
@@ -427,7 +415,6 @@ const CryptoTracker = () => {
                                                 <div style={styles.tokenSymbol}>{investment.symbol}</div>
                                             </div>
                                         </td>
-                                        <td style={styles.tableCell}>{investment.wallet || '—'}</td>
                                         <td
                                             style={{
                                                 ...styles.tableCell,

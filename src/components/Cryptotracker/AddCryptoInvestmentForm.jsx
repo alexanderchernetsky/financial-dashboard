@@ -22,6 +22,7 @@ export const AddCryptoInvestmentForm = ({
                 dateAdded: '',
                 status: 'open',
                 sold: '',
+                closePrice: '',
                 notes: '',
             });
         }
@@ -117,6 +118,17 @@ export const AddCryptoInvestmentForm = ({
                         <option value="open">Open</option>
                         <option value="closed">Closed</option>
                     </select>
+                </div>
+                <div className="formGroup">
+                    <label className="label">Close Price</label>
+                    <input
+                        type="number"
+                        step="any"
+                        value={formData.closePrice || ''}
+                        onChange={e => setFormData({ ...formData, closePrice: e.target.value })}
+                        placeholder="0.00"
+                        className="input"
+                    />
                 </div>
                 <div className="formGroup fullWidth">
                     <label className="label">Notes</label>

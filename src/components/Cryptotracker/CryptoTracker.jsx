@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { DollarSign, RefreshCw, Plus, Pencil, Trash2, Filter } from 'lucide-react';
 import { useInvestments, useAddInvestment, useRemoveInvestment, useUpdateInvestment } from '../../react-query/useInvestments';
 import { fetchPrices } from '../../utils/api/getPrices';
-import { styles } from './CryptoTrackerStyles';
 import { CryptoPortfolioSummary } from './CryptoPortfolioSummary';
 import { AddCryptoInvestmentForm } from './AddCryptoInvestmentForm';
-import {processCryptoTrackerData} from "../../utils";
+import { processCryptoTrackerData } from "../../utils";
+import './CryptoTracker.css';
 
-// todo: refactor using css instead of inline styles
 const CryptoTracker = () => {
     const { data: investments = [] } = useInvestments();
     const addMutation = useAddInvestment();
@@ -244,68 +243,42 @@ const CryptoTracker = () => {
     const realisedProfitLoss = portfolio.filter(inv => inv.status === 'closed').reduce((sum, i) => sum + (i.currentValue - i.amountPaid), 0);
 
     return (
-        <div style={styles.container}>
-            <div style={styles.maxWidth}>
+        <div className="crypto-tracker-container">
+            <div className="crypto-tracker-max-width">
                 {/* Header */}
-                <div style={styles.card}>
-                    <div style={styles.header}>
-                        <h1 style={styles.title}>
+                <div className="crypto-tracker-card">
+                    <div className="crypto-tracker-header">
+                        <h1 className="crypto-tracker-title">
                             <DollarSign style={{ color: '#fbbf24' }} />
                             Crypto Investment Tracker
                         </h1>
-                        <div style={styles.buttonGroup}>
+                        <div className="crypto-tracker-button-group">
                             <button
                                 onClick={updatePrices}
                                 disabled={loading || investments.length === 0}
-                                style={{
-                                    ...styles.button,
-                                    ...styles.buttonPrimary,
-                                    opacity: loading || investments.length === 0 ? 0.5 : 1,
-                                }}
-                                onMouseOver={e =>
-                                    !loading && investments.length > 0 && (e.target.style.backgroundColor = styles.buttonPrimaryHover.backgroundColor)
-                                }
-                                onMouseOut={e => (e.target.style.backgroundColor = styles.buttonPrimary.backgroundColor)}>
+                                className="crypto-tracker-button crypto-tracker-button--primary"
+                            >
                                 <RefreshCw
                                     style={{
                                         width: '16px',
                                         height: '16px',
-                                        ...(loading ? styles.spinning : {}),
                                     }}
+                                    className={loading ? 'crypto-tracker-spinning' : ''}
                                 />
                                 Refresh Prices
                             </button>
                             <button
                                 onClick={() => setShowClosedPositions(!showClosedPositions)}
-                                style={{
-                                    ...styles.button,
-                                    ...(showClosedPositions ? styles.buttonPrimary : styles.buttonSecondary),
-                                    opacity: closedPositionsCount === 0 ? 0.5 : 1,
-                                }}
+                                className={`crypto-tracker-button ${showClosedPositions ? 'crypto-tracker-button--primary' : 'crypto-tracker-button--secondary'}`}
                                 disabled={closedPositionsCount === 0}
-                                onMouseOver={e => {
-                                    if (closedPositionsCount > 0) {
-                                        e.target.style.backgroundColor = showClosedPositions
-                                            ? styles.buttonPrimaryHover.backgroundColor
-                                            : styles.buttonSecondaryHover?.backgroundColor || '#374151';
-                                    }
-                                }}
-                                onMouseOut={e => {
-                                    e.target.style.backgroundColor = showClosedPositions
-                                        ? styles.buttonPrimary.backgroundColor
-                                        : styles.buttonSecondary?.backgroundColor || '#4b5563';
-                                }}>
+                            >
                                 <Filter style={{ width: '16px', height: '16px' }} />
                                 {showClosedPositions ? 'Hide' : 'Show'} Closed ({closedPositionsCount})
                             </button>
                             <button
                                 onClick={() => setShowAddForm(!showAddForm)}
-                                style={{
-                                    ...styles.button,
-                                    ...styles.buttonSuccess,
-                                }}
-                                onMouseOver={e => (e.target.style.backgroundColor = styles.buttonSuccessHover.backgroundColor)}
-                                onMouseOut={e => (e.target.style.backgroundColor = styles.buttonSuccess.backgroundColor)}>
+                                className="crypto-tracker-button crypto-tracker-button--success"
+                            >
                                 <Plus style={{ width: '16px', height: '16px' }} />
                                 Add Investment
                             </button>
@@ -336,74 +309,37 @@ const CryptoTracker = () => {
                 )}
 
                 {/* Investments Table */}
-                <div style={{ ...styles.card, padding: 0, overflow: 'hidden' }}>
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={styles.table}>
+                <div className="crypto-tracker-card crypto-tracker-card--no-padding">
+                    <div className="crypto-tracker-table-container">
+                        <table className="crypto-tracker-table">
                             <thead>
                             <tr>
-                                <th
-                                    style={{
-                                        ...styles.tableHeader,
-                                        textAlign: 'center',
-                                    }}>
+                                <th className="crypto-tracker-table-header crypto-tracker-table-header--center">
                                     Date of Purchase
                                 </th>
-                                <th
-                                    style={{
-                                        ...styles.tableHeader,
-                                        textAlign: 'left',
-                                    }}>
+                                <th className="crypto-tracker-table-header">
                                     Token
                                 </th>
-                                <th
-                                    style={{
-                                        ...styles.tableHeader,
-                                        textAlign: 'right',
-                                    }}>
+                                <th className="crypto-tracker-table-header crypto-tracker-table-header--right">
                                     Quantity
                                 </th>
-                                <th
-                                    style={{
-                                        ...styles.tableHeader,
-                                        textAlign: 'right',
-                                    }}>
+                                <th className="crypto-tracker-table-header crypto-tracker-table-header--right">
                                     Purchase Price
                                 </th>
-                                <th
-                                    style={{
-                                        ...styles.tableHeader,
-                                        textAlign: 'right',
-                                    }}>
+                                <th className="crypto-tracker-table-header crypto-tracker-table-header--right">
                                     Amount Paid
                                 </th>
-                                <th
-                                    style={{
-                                        ...styles.tableHeader,
-                                        textAlign: 'right',
-                                    }}>
+                                <th className="crypto-tracker-table-header crypto-tracker-table-header--right">
                                     Current Price
                                 </th>
-                                <th
-                                    style={{
-                                        ...styles.tableHeader,
-                                        textAlign: 'right',
-                                    }}>
+                                <th className="crypto-tracker-table-header crypto-tracker-table-header--right">
                                     Current Value
                                 </th>
-                                <th
-                                    style={{
-                                        ...styles.tableHeader,
-                                        textAlign: 'right',
-                                    }}>
+                                <th className="crypto-tracker-table-header crypto-tracker-table-header--right">
                                     Profit/Loss
                                 </th>
                                 <th
-                                    style={{
-                                        ...styles.tableHeader,
-                                        textAlign: 'right',
-                                        cursor: 'pointer',
-                                        userSelect: 'none',
-                                    }}
+                                    className="crypto-tracker-table-header crypto-tracker-table-header--right crypto-tracker-table-header--sortable"
                                     onClick={() => {
                                         if (!sortByPL) {
                                             setSortByPL(true); // Activate sorting
@@ -415,26 +351,16 @@ const CryptoTracker = () => {
                                 >
                                     P/L % {sortByPL ? (sortPLPercentageAsc ? '↑' : '↓') : ''}
                                 </th>
-                                <th style={{ ...styles.tableHeader, textAlign: 'center' }}>Sold %</th>
-                                <th
-                                    style={{
-                                        ...styles.tableHeader,
-                                        textAlign: 'center',
-                                    }}>
+                                <th className="crypto-tracker-table-header crypto-tracker-table-header--center">
+                                    Sold %
+                                </th>
+                                <th className="crypto-tracker-table-header crypto-tracker-table-header--center">
                                     Status
                                 </th>
-                                <th
-                                    style={{
-                                        ...styles.tableHeader,
-                                        textAlign: 'left',
-                                    }}>
+                                <th className="crypto-tracker-table-header">
                                     Notes
                                 </th>
-                                <th
-                                    style={{
-                                        ...styles.tableHeader,
-                                        textAlign: 'center',
-                                    }}>
+                                <th className="crypto-tracker-table-header crypto-tracker-table-header--center">
                                     Actions
                                 </th>
                             </tr>
@@ -442,12 +368,7 @@ const CryptoTracker = () => {
                             <tbody>
                             {filteredPortfolio.length === 0 ? (
                                 <tr>
-                                    <td
-                                        colSpan="13"
-                                        style={{
-                                            ...styles.tableCell,
-                                            ...styles.emptyState,
-                                        }}>
+                                    <td colSpan="13" className="crypto-tracker-table-cell crypto-tracker-empty-state">
                                         {portfolio.length === 0
                                             ? "No investments added yet. Click \"Add Investment\" to get started!"
                                             : showClosedPositions
@@ -460,123 +381,65 @@ const CryptoTracker = () => {
                                 processedData.map(investment => (
                                     <tr
                                         key={investment.id}
-                                        style={{
-                                            ...styles.tableRow,
-                                            backgroundColor: investment.status === 'closed' ? 'rgba(148, 163, 184, 0.7)' : 'transparent',
-                                        }}
+                                        className={`crypto-tracker-table-row ${investment.status === 'closed' ? 'crypto-tracker-table-row--closed' : ''}`}
                                     >
-                                        <td
-                                            style={{
-                                                ...styles.tableCell,
-                                                textAlign: 'center',
-                                                fontSize: '12px',
-                                                color: '#FFF',
-                                            }}>
+                                        <td className="crypto-tracker-table-cell crypto-tracker-table-cell--center crypto-tracker-table-cell--date">
                                             {investment.dateAdded ? new Date(investment.dateAdded).toLocaleDateString() : '—'}
                                         </td>
-                                        <td style={styles.tableCell}>
-                                            <div style={styles.tokenInfo}>
-                                                <div style={styles.tokenName}>{investment.tokenName}</div>
-                                                <div style={styles.tokenSymbol}>{investment.symbol}</div>
+                                        <td className="crypto-tracker-table-cell">
+                                            <div className="crypto-tracker-token-info">
+                                                <div className="crypto-tracker-token-name">{investment.tokenName}</div>
+                                                <div className="crypto-tracker-token-symbol">{investment.symbol}</div>
                                             </div>
                                         </td>
-                                        <td
-                                            style={{
-                                                ...styles.tableCell,
-                                                textAlign: 'right',
-                                            }}>
+                                        <td className="crypto-tracker-table-cell crypto-tracker-table-cell--right">
                                             {investment.quantity.toFixed(4)}
                                         </td>
-                                        <td
-                                            style={{
-                                                ...styles.tableCell,
-                                                textAlign: 'right',
-                                            }}>
+                                        <td className="crypto-tracker-table-cell crypto-tracker-table-cell--right">
                                             ${investment.purchasePrice.toFixed(2)}
                                         </td>
-                                        <td
-                                            style={{
-                                                ...styles.tableCell,
-                                                textAlign: 'right',
-                                            }}>
+                                        <td className="crypto-tracker-table-cell crypto-tracker-table-cell--right">
                                             ${investment.amountPaid.toFixed(2)}
                                         </td>
-                                        <td
-                                            style={{
-                                                ...styles.tableCell,
-                                                textAlign: 'right',
-                                            }}>
+                                        <td className="crypto-tracker-table-cell crypto-tracker-table-cell--right">
                                             ${investment.currentPrice.toFixed(2)}
                                         </td>
-                                        <td
-                                            style={{
-                                                ...styles.tableCell,
-                                                textAlign: 'right',
-                                                fontWeight: '600',
-                                            }}>
+                                        <td className="crypto-tracker-table-cell crypto-tracker-table-cell--right crypto-tracker-table-cell--bold">
                                             ${investment.currentValue.toFixed(2)}
                                         </td>
-                                        <td
-                                            style={{
-                                                ...styles.tableCell,
-                                                textAlign: 'right',
-                                                fontWeight: '600',
-                                                color: investment.profitLoss >= 0 ? '#4ade80' : '#f87171',
-                                            }}>
+                                        <td className={`crypto-tracker-table-cell crypto-tracker-table-cell--right crypto-tracker-table-cell--bold ${investment.profitLoss >= 0 ? 'crypto-tracker-positive' : 'crypto-tracker-negative'}`}>
                                             ${investment.profitLoss.toFixed(2)}
                                         </td>
-                                        <td
-                                            style={{
-                                                ...styles.tableCell,
-                                                textAlign: 'right',
-                                                fontWeight: '600',
-                                                color: investment.profitLossPercentage >= 0 ? '#4ade80' : '#f87171',
-                                            }}>
+                                        <td className={`crypto-tracker-table-cell crypto-tracker-table-cell--right crypto-tracker-table-cell--bold ${investment.profitLossPercentage >= 0 ? 'crypto-tracker-positive' : 'crypto-tracker-negative'}`}>
                                             {investment.profitLossPercentage >= 0 ? '+' : ''}
                                             {investment.profitLossPercentage.toFixed(2)}%
                                         </td>
-                                        <td style={{ ...styles.tableCell, textAlign: 'center' }}>
+                                        <td className="crypto-tracker-table-cell crypto-tracker-table-cell--center">
                                             {investment.sold ? `${investment.sold}%` : '—'}
                                         </td>
-                                        <td
-                                            style={{
-                                                ...styles.tableCell,
-                                                textAlign: 'center',
-                                                fontWeight: 'bold',
-                                                textTransform: 'capitalize',
-                                            }}>
+                                        <td className="crypto-tracker-table-cell crypto-tracker-table-cell--center crypto-tracker-status">
                                             {investment.status || 'open'}
                                         </td>
                                         <td
-                                            style={{
-                                                ...styles.tableCell,
-                                                textAlign: 'left',
-                                                maxWidth: '150px',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap',
-                                                fontSize: '12px',
-                                                color: '#d1d5db',
-                                            }}
+                                            className="crypto-tracker-table-cell crypto-tracker-table-cell--notes"
                                             title={investment.notes || ''}
                                         >
                                             {investment.notes || '—'}
                                         </td>
-                                        <td
-                                            style={{
-                                                ...styles.tableCell,
-                                                textAlign: 'center',
-                                            }}>
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    justifyContent: 'center',
-                                                    gap: '2px',
-                                                }}>
-                                                <button onClick={() => handleEdit(investment)} title="Edit" style={styles.iconButton}>
+                                        <td className="crypto-tracker-table-cell crypto-tracker-table-cell--center">
+                                            <div className="crypto-tracker-actions">
+                                                <button
+                                                    onClick={() => handleEdit(investment)}
+                                                    title="Edit"
+                                                    className="crypto-tracker-icon-button"
+                                                >
                                                     <Pencil size={16} />
                                                 </button>
-                                                <button onClick={() => handleRemove(investment.id)} title="Remove" style={styles.iconButtonRemove}>
+                                                <button
+                                                    onClick={() => handleRemove(investment.id)}
+                                                    title="Remove"
+                                                    className="crypto-tracker-icon-button crypto-tracker-icon-button--remove"
+                                                >
                                                     <Trash2 size={16} />
                                                 </button>
                                             </div>

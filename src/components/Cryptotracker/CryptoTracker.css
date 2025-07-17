@@ -1,0 +1,299 @@
+/* CryptoTracker.css */
+
+.crypto-tracker-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e293b 0%, #7c3aed 50%, #1e293b 100%);
+    padding: 20px;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.crypto-tracker-max-width {
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+.crypto-tracker-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.crypto-tracker-card--no-padding {
+    padding: 0;
+    overflow: hidden;
+}
+
+.crypto-tracker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.crypto-tracker-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+}
+
+.crypto-tracker-button-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.crypto-tracker-button {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.crypto-tracker-button--primary {
+    background-color: #2563eb;
+}
+
+.crypto-tracker-button--primary:hover {
+    background-color: #1d4ed8;
+}
+
+.crypto-tracker-button--success {
+    background-color: #16a34a;
+}
+
+.crypto-tracker-button--success:hover {
+    background-color: #15803d;
+}
+
+.crypto-tracker-button--danger {
+    background-color: #dc2626;
+}
+
+.crypto-tracker-button--secondary {
+    background-color: #64748b;
+}
+
+.crypto-tracker-button--secondary:hover {
+    background-color: #475569;
+}
+
+.crypto-tracker-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.crypto-tracker-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, auto);
+    gap: 16px;
+}
+
+.crypto-tracker-summary-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.crypto-tracker-summary-label {
+    color: #cbd5e1;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.crypto-tracker-summary-value {
+    color: white;
+    font-size: 1.25rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.crypto-tracker-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.crypto-tracker-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.crypto-tracker-label {
+    color: #cbd5e1;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.crypto-tracker-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: white;
+    font-size: 14px;
+}
+
+.crypto-tracker-table-container {
+    overflow-x: auto;
+}
+
+.crypto-tracker-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.crypto-tracker-table-header {
+    background: rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+    font-weight: 600;
+    padding: 16px;
+    text-align: left;
+    font-size: 14px;
+}
+
+.crypto-tracker-table-header--center {
+    text-align: center;
+}
+
+.crypto-tracker-table-header--right {
+    text-align: right;
+}
+
+.crypto-tracker-table-header--sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.crypto-tracker-table-cell {
+    padding: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.crypto-tracker-table-cell--center {
+    text-align: center;
+}
+
+.crypto-tracker-table-cell--right {
+    text-align: right;
+}
+
+.crypto-tracker-table-cell--bold {
+    font-weight: 600;
+}
+
+.crypto-tracker-table-cell--date {
+    font-size: 12px;
+    color: #FFF;
+}
+
+.crypto-tracker-table-cell--notes {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    color: #d1d5db;
+}
+
+.crypto-tracker-table-row {
+    transition: background-color 0.2s;
+}
+
+.crypto-tracker-table-row--closed {
+    background-color: rgba(148, 163, 184, 0.7);
+}
+
+.crypto-tracker-positive {
+    color: #4ade80;
+}
+
+.crypto-tracker-negative {
+    color: #f87171;
+}
+
+.crypto-tracker-spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.crypto-tracker-empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #94a3b8;
+}
+
+.crypto-tracker-token-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.crypto-tracker-token-name {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.crypto-tracker-token-symbol {
+    font-size: 12px;
+    color: #94a3b8;
+    text-transform: uppercase;
+}
+
+.crypto-tracker-note {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.crypto-tracker-icon-button {
+    padding: 6px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #60a5fa;
+}
+
+.crypto-tracker-icon-button--remove {
+    padding: 6px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #f87171;
+}
+
+.crypto-tracker-actions {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+}
+
+.crypto-tracker-status {
+    font-weight: bold;
+    text-transform: capitalize;
+}

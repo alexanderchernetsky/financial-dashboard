@@ -82,10 +82,25 @@ const CryptoTracker = () => {
             }
 
             // Keep closed investments with their existing values (no price updates)
-            const preservedClosedInvestments = closedInvestments.map(inv => ({
-                ...inv,
-                // Keep existing values, don't update lastUpdated time
-            }));
+            const preservedClosedInvestments = closedInvestments.map(inv => {
+                const closePrice = inv.closePrice ?? 0;
+                const quantity = inv.quantity ?? 0;
+                const amountPaid = inv.amountPaid ?? 0;
+
+                const currentValue = quantity * closePrice;
+                const profitLoss = currentValue - amountPaid;
+                const profitLossPercentage = (profitLoss / amountPaid) * 100;
+
+                return {
+                    ...inv,
+                    currentPrice: closePrice,              // For display consistency
+                    currentValue: currentValue,            // Fixed at sell time
+                    profitLoss: profitLoss,
+                    profitLossPercentage: profitLossPercentage,
+                    // lastUpdated not needed
+                };
+            });
+
 
             // Combine updated open investments with preserved closed investments
             enriched = [...enriched, ...preservedClosedInvestments];

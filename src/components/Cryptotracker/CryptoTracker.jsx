@@ -25,6 +25,7 @@ const CryptoTracker = () => {
         dateAdded: '',
         status: 'open',
         sold: '',
+        closePrice: '',
         notes: '',
     });
 
@@ -109,6 +110,7 @@ const CryptoTracker = () => {
             dateAdded: investment.dateAdded || '',
             status: investment.status || 'open',
             sold: investment.sold?.toString() || '',
+            closePrice: investment.closePrice?.toString() || '',
             notes: investment.notes || '',
         });
         setEditingInvestment(investment);
@@ -126,6 +128,7 @@ const CryptoTracker = () => {
         const price = parseFloat(purchasePrice);
         const paid = amountPaid ? parseFloat(amountPaid) : qty * price;
         const sold = formData.sold ? parseFloat(formData.sold) : 0;
+        const closePrice = formData.closePrice ? parseFloat(formData.closePrice) : 0;
 
         setLoading(true);
         try {
@@ -148,6 +151,7 @@ const CryptoTracker = () => {
                     purchasePrice: price,
                     amountPaid: paid,
                     sold: sold,
+                    closePrice: closePrice,
                     currentPrice,
                     currentValue,
                     profitLoss,
@@ -168,6 +172,7 @@ const CryptoTracker = () => {
                     purchasePrice: price,
                     amountPaid: paid,
                     sold: sold,
+                    closePrice: closePrice,
                     currentPrice,
                     currentValue,
                     profitLoss,
@@ -191,6 +196,7 @@ const CryptoTracker = () => {
                 amountPaid: '',
                 dateAdded: '',
                 status: 'open',
+                closePrice: '',
                 notes: '',
             });
             setShowAddForm(false);
@@ -357,6 +363,9 @@ const CryptoTracker = () => {
                                 <th className="crypto-tracker-table-header crypto-tracker-table-header--center">
                                     Status
                                 </th>
+                                <th className="crypto-tracker-table-header crypto-tracker-table-header--right">
+                                    Close Price
+                                </th>
                                 <th className="crypto-tracker-table-header">
                                     Notes
                                 </th>
@@ -368,7 +377,7 @@ const CryptoTracker = () => {
                             <tbody>
                             {filteredPortfolio.length === 0 ? (
                                 <tr>
-                                    <td colSpan="13" className="crypto-tracker-table-cell crypto-tracker-empty-state">
+                                    <td colSpan="14" className="crypto-tracker-table-cell crypto-tracker-empty-state">
                                         {portfolio.length === 0
                                             ? "No investments added yet. Click \"Add Investment\" to get started!"
                                             : showClosedPositions
@@ -419,6 +428,9 @@ const CryptoTracker = () => {
                                         </td>
                                         <td className="crypto-tracker-table-cell crypto-tracker-table-cell--center crypto-tracker-status">
                                             {investment.status || 'open'}
+                                        </td>
+                                        <td className="crypto-tracker-table-cell crypto-tracker-table-cell--right">
+                                            {investment.closePrice ? `$${investment.closePrice.toFixed(2)}` : '—'}
                                         </td>
                                         <td
                                             className="crypto-tracker-table-cell crypto-tracker-table-cell--notes"

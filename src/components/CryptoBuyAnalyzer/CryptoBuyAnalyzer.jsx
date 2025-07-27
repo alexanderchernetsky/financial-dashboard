@@ -4,71 +4,18 @@ import { useInvestments } from '../../react-query/useInvestments';
 import { fetchPrices } from '../../utils/api/getPrices';
 import './CryptoBuyAnalyzer.css';
 import {calculateOneYearPriceIndex, calculatePriceIndex} from "../../utils/priceIndex";
+import {getBuySignal} from "./getBuySignal";
+import {getFearGreedStatus} from "./getFearGreedStatus";
+import {getAltcoinStatus} from "./getAltcoinStatus";
 
 const CryptoBuyAnalyzer = () => {
     const { data: investments = [] } = useInvestments();
     const [loading, setLoading] = useState(false);
     const [analyzedTokens, setAnalyzedTokens] = useState([]);
-
-    // Mock market indices (replace with real API calls later)
+    
+    // Mock market indices (todo: replace with real API calls later)
     const [fearGreedIndex, setFearGreedIndex] = useState(42); // 0-100
     const [altcoinIndex, setAltcoinIndex] = useState(68); // 0-100
-
-    // Get buy signal based on single price index
-    const getSingleBuySignal = (priceIndex) => {
-        if (priceIndex === null) {
-            return { signal: 'UNKNOWN', color: '#6b7280', text: '—' };
-        }
-
-        if (priceIndex <= 0.2) {
-            return { signal: 'STRONG BUY', color: '#10b981', text: 'Strong Buy' };
-        } else if (priceIndex <= 0.4) {
-            return { signal: 'BUY', color: '#34d399', text: 'Buy' };
-        } else if (priceIndex <= 0.6) {
-            return { signal: 'CAUTION', color: '#f59e0b', text: 'Caution' };
-        } else {
-            return { signal: 'AVOID', color: '#ef4444', text: 'Avoid' };
-        }
-    };
-
-    // Get buy signal based on price indices
-    const getBuySignal = (priceIndex, oneYearPriceIndex) => {
-        if (priceIndex === null && oneYearPriceIndex === null) {
-            return { signal: 'UNKNOWN', color: '#6b7280', text: 'Insufficient Data' };
-        }
-
-        const pi = priceIndex || 1;
-        const yearPi = oneYearPriceIndex || 1;
-        const avgIndex = (pi + yearPi) / 2;
-
-        if (avgIndex <= 0.2) {
-            return { signal: 'STRONG BUY', color: '#10b981', text: 'Strong Buy' };
-        } else if (avgIndex <= 0.4) {
-            return { signal: 'BUY', color: '#34d399', text: 'Buy' };
-        } else if (avgIndex <= 0.6) {
-            return { signal: 'CAUTION', color: '#f59e0b', text: 'Caution' };
-        } else {
-            return { signal: 'AVOID', color: '#ef4444', text: 'Avoid' };
-        }
-    };
-
-// Get Fear/Greed status
-    const getFearGreedStatus = (index) => {
-        if (index <= 25) return { text: 'Extreme Fear', color: '#10b981', bgColor: 'rgba(16, 185, 129, 0.1)' }; // Teal on dark
-        if (index <= 45) return { text: 'Fear', color: '#34d399', bgColor: 'rgba(52, 211, 153, 0.1)' };
-        if (index <= 55) return { text: 'Neutral', color: '#9ca3af', bgColor: 'rgba(107, 114, 128, 0.1)' }; // Soft gray
-        if (index <= 75) return { text: 'Greed', color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.1)' }; // Amber
-        return { text: 'Extreme Greed', color: '#ef4444', bgColor: 'rgba(239, 68, 68, 0.1)' }; // Red
-    };
-
-// Get Altcoin status
-    const getAltcoinStatus = (index) => {
-        if (index <= 30) return { text: 'Altcoin Winter', color: '#10b981', bgColor: 'rgba(16, 185, 129, 0.1)' };
-        if (index <= 50) return { text: 'Accumulation', color: '#34d399', bgColor: 'rgba(52, 211, 153, 0.1)' };
-        if (index <= 70) return { text: 'Growth Phase', color: '#fbbf24', bgColor: 'rgba(251, 191, 36, 0.1)' };
-        if (index <= 85) return { text: 'Alt Season', color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.1)' };
-        return { text: 'Euphoria', color: '#ef4444', bgColor: 'rgba(239, 68, 68, 0.1)' };
-    };
 
 
     useEffect(() => {
@@ -99,9 +46,8 @@ const CryptoBuyAnalyzer = () => {
                 const currentPrice = priceData[inv.symbol]?.usd ?? 0;
                 const priceIndex = calculatePriceIndex(currentPrice, inv.allTimeLow, inv.allTimeHigh);
                 const oneYearPriceIndex = calculateOneYearPriceIndex(currentPrice, inv.oneYearLow, inv.oneYearHigh);
-                const buySignal = getBuySignal(priceIndex, oneYearPriceIndex);
-                const piBuySignal = getSingleBuySignal(priceIndex);
-                const oneYearPiBuySignal = getSingleBuySignal(oneYearPriceIndex);
+                const piBuySignal = getBuySignal(priceIndex);
+                const oneYearPiBuySignal = getBuySignal(oneYearPriceIndex);
 
                 return {
                     id: inv.id,
@@ -110,7 +56,6 @@ const CryptoBuyAnalyzer = () => {
                     currentPrice,
                     priceIndex,
                     oneYearPriceIndex,
-                    buySignal,
                     piBuySignal,
                     oneYearPiBuySignal,
                     lastUpdated: new Date().toLocaleTimeString(),
@@ -123,7 +68,7 @@ const CryptoBuyAnalyzer = () => {
             );
 
             const signalPriority = { 'STRONG BUY': 1, 'BUY': 2, 'CAUTION': 3, 'AVOID': 4, 'UNKNOWN': 5 };
-            uniqueAnalyzed.sort((a, b) => signalPriority[a.buySignal.signal] - signalPriority[b.buySignal.signal]);
+            uniqueAnalyzed.sort((a, b) => signalPriority[a.piBuySignal.signal] - signalPriority[b.piBuySignal.signal]);
 
             setAnalyzedTokens(uniqueAnalyzed);
         } catch (err) {

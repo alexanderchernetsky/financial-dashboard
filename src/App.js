@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import FinancialDashboard from './components/FinancialDashboard/FinancialDashboard';
 import CryptoTracker from './components/Cryptotracker/CryptoTracker';
-import CryptoBuyAnalyzer from "./components/CryptoBuyAnalyzer/CryptoBuyAnalyzer";
 
 // Create a react-query client
 const queryClient = new QueryClient({
@@ -22,7 +21,6 @@ const App = () => (
             <Routes>
                 <Route path="/" element={<FinancialDashboard />} />
                 <Route path="/crypto" element={<CryptoTracker />} />
-                <Route path="/crypto-buy-analyzer" element={<CryptoBuyAnalyzer />} />
             </Routes>
         </Router>
     </QueryClientProvider>

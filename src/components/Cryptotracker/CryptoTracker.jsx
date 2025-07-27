@@ -50,6 +50,14 @@ const CryptoTracker = () => {
         return (currentPrice - allTimeLow) / (allTimeHigh - allTimeLow);
     };
 
+    // Calculate 1-Year Price Index
+    const calculateOneYearPriceIndex = (currentPrice, oneYearLow, oneYearHigh) => {
+        if (!oneYearLow || !oneYearHigh || oneYearLow >= oneYearHigh) {
+            return null; // Invalid data
+        }
+        return (currentPrice - oneYearLow) / (oneYearHigh - oneYearLow);
+    };
+
     useEffect(() => {
         if (!investments || investments.length === 0) return;
         updatePrices();
@@ -80,6 +88,7 @@ const CryptoTracker = () => {
                     const profitLoss = currentValue - inv.amountPaid;
                     const profitLossPercentage = (profitLoss / inv.amountPaid) * 100;
                     const priceIndex = calculatePriceIndex(price, inv.allTimeLow, inv.allTimeHigh);
+                    const oneYearPriceIndex = calculateOneYearPriceIndex(price, inv.oneYearLow, inv.oneYearHigh);
 
                     return {
                         ...inv,
@@ -88,6 +97,7 @@ const CryptoTracker = () => {
                         profitLoss,
                         profitLossPercentage,
                         priceIndex,
+                        oneYearPriceIndex,
                         lastUpdated: new Date().toLocaleTimeString(),
                     };
                 });
@@ -105,6 +115,7 @@ const CryptoTracker = () => {
                 const profitLoss = currentValue - amountPaid;
                 const profitLossPercentage = (profitLoss / amountPaid) * 100;
                 const priceIndex = calculatePriceIndex(closePrice, inv.allTimeLow, inv.allTimeHigh);
+                const oneYearPriceIndex = calculateOneYearPriceIndex(closePrice, inv.oneYearLow, inv.oneYearHigh);
 
                 return {
                     ...inv,
@@ -113,6 +124,7 @@ const CryptoTracker = () => {
                     profitLoss: profitLoss,
                     profitLossPercentage: profitLossPercentage,
                     priceIndex,
+                    oneYearPriceIndex,
                     // lastUpdated not needed
                 };
             });
@@ -180,6 +192,7 @@ const CryptoTracker = () => {
             const profitLoss = currentValue - paid;
             const profitLossPercentage = (profitLoss / paid) * 100;
             const priceIndex = calculatePriceIndex(currentPrice, allTimeLow, allTimeHigh);
+            const oneYearPriceIndex = calculateOneYearPriceIndex(currentPrice, oneYearLow, oneYearHigh);
 
             if (editingInvestment) {
                 // UPDATE
@@ -201,6 +214,7 @@ const CryptoTracker = () => {
                     profitLoss,
                     profitLossPercentage,
                     priceIndex,
+                    oneYearPriceIndex,
                     dateAdded: formData.dateAdded || new Date().toLocaleDateString(),
                     lastUpdated: new Date().toLocaleTimeString(),
                     status: formData.status || 'open',
@@ -227,6 +241,7 @@ const CryptoTracker = () => {
                     profitLoss,
                     profitLossPercentage,
                     priceIndex,
+                    oneYearPriceIndex,
                     dateAdded: formData.dateAdded || new Date().toLocaleDateString(),
                     lastUpdated: new Date().toLocaleTimeString(),
                     status: formData.status || 'open',
@@ -415,6 +430,9 @@ const CryptoTracker = () => {
                                     PI
                                 </th>
                                 <th className="crypto-tracker-table-header crypto-tracker-table-header--center">
+                                    1-Y PI
+                                </th>
+                                <th className="crypto-tracker-table-header crypto-tracker-table-header--center">
                                     Sold %
                                 </th>
                                 <th className="crypto-tracker-table-header crypto-tracker-table-header--center">
@@ -434,7 +452,7 @@ const CryptoTracker = () => {
                             <tbody>
                             {filteredPortfolio.length === 0 ? (
                                 <tr>
-                                    <td colSpan="15" className="crypto-tracker-table-cell crypto-tracker-empty-state">
+                                    <td colSpan="16" className="crypto-tracker-table-cell crypto-tracker-empty-state">
                                         {portfolio.length === 0
                                             ? "No investments added yet. Click \"Add Investment\" to get started!"
                                             : showClosedPositions
@@ -483,6 +501,12 @@ const CryptoTracker = () => {
                                         <td className="crypto-tracker-table-cell crypto-tracker-table-cell--center">
                                             {investment.priceIndex !== null ?
                                                 `${(investment.priceIndex * 100).toFixed(1)}%` :
+                                                '—'
+                                            }
+                                        </td>
+                                        <td className="crypto-tracker-table-cell crypto-tracker-table-cell--center">
+                                            {investment.oneYearPriceIndex !== null ?
+                                                `${(investment.oneYearPriceIndex * 100).toFixed(1)}%` :
                                                 '—'
                                             }
                                         </td>

@@ -3,6 +3,7 @@ import { TrendingUp, RefreshCw, Eye, AlertTriangle } from 'lucide-react';
 import { useInvestments } from '../../react-query/useInvestments';
 import { fetchPrices } from '../../utils/api/getPrices';
 import './CryptoBuyAnalyzer.css';
+import {calculateOneYearPriceIndex, calculatePriceIndex} from "../../utils/priceIndex";
 
 const CryptoBuyAnalyzer = () => {
     const { data: investments = [] } = useInvestments();
@@ -12,22 +13,6 @@ const CryptoBuyAnalyzer = () => {
     // Mock market indices (replace with real API calls later)
     const [fearGreedIndex, setFearGreedIndex] = useState(42); // 0-100
     const [altcoinIndex, setAltcoinIndex] = useState(68); // 0-100
-
-    // Calculate Price Index
-    const calculatePriceIndex = (currentPrice, allTimeLow, allTimeHigh) => {
-        if (!allTimeLow || !allTimeHigh || allTimeLow >= allTimeHigh) {
-            return null;
-        }
-        return (currentPrice - allTimeLow) / (allTimeHigh - allTimeLow);
-    };
-
-    // Calculate 1-Year Price Index
-    const calculateOneYearPriceIndex = (currentPrice, oneYearLow, oneYearHigh) => {
-        if (!oneYearLow || !oneYearHigh || oneYearLow >= oneYearHigh) {
-            return null;
-        }
-        return (currentPrice - oneYearLow) / (oneYearHigh - oneYearLow);
-    };
 
     // Get buy signal based on single price index
     const getSingleBuySignal = (priceIndex) => {

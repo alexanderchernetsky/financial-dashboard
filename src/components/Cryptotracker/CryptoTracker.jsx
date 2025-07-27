@@ -6,6 +6,7 @@ import { CryptoPortfolioSummary } from './CryptoPortfolioSummary';
 import { AddCryptoInvestmentForm } from './AddCryptoInvestmentForm';
 import { processCryptoTrackerData } from "../../utils";
 import './CryptoTracker.css';
+import {calculateOneYearPriceIndex, calculatePriceIndex} from "../../utils/priceIndex";
 
 const CryptoTracker = () => {
     const { data: investments = [] } = useInvestments();
@@ -42,21 +43,7 @@ const CryptoTracker = () => {
     const [sortByPL, setSortByPL] = useState(false);
     const [sortPLPercentageAsc, setSortPLPercentageAsc] = useState(true);
 
-    // Calculate Price Index
-    const calculatePriceIndex = (currentPrice, allTimeLow, allTimeHigh) => {
-        if (!allTimeLow || !allTimeHigh || allTimeLow >= allTimeHigh) {
-            return null; // Invalid data
-        }
-        return (currentPrice - allTimeLow) / (allTimeHigh - allTimeLow);
-    };
 
-    // Calculate 1-Year Price Index
-    const calculateOneYearPriceIndex = (currentPrice, oneYearLow, oneYearHigh) => {
-        if (!oneYearLow || !oneYearHigh || oneYearLow >= oneYearHigh) {
-            return null; // Invalid data
-        }
-        return (currentPrice - oneYearLow) / (oneYearHigh - oneYearLow);
-    };
 
     useEffect(() => {
         if (!investments || investments.length === 0) return;

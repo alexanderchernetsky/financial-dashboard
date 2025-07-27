@@ -1,36 +1,48 @@
 import React, { useEffect, useState } from 'react';
-import { TrendingUp, RefreshCw, Eye, AlertTriangle } from 'lucide-react';
-import { useInvestments } from '../../react-query/useInvestments';
+import {TrendingUp, RefreshCw, Eye, AlertTriangle, Plus} from 'lucide-react';
 import { fetchPrices } from '../../utils/api/getPrices';
 import './CryptoBuyAnalyzer.css';
 import {calculateOneYearPriceIndex, calculatePriceIndex} from "../../utils/priceIndex";
 import {getBuySignal} from "./getBuySignal";
 import {getFearGreedStatus} from "./getFearGreedStatus";
 import {getAltcoinStatus} from "./getAltcoinStatus";
+import {AddTokenToBuyAnalyzerForm} from "./AddTokenToBuyAnalyzerForm";
+import {useAddTokenToBuyAnalyzer, useCryptoBuyAnalyzer} from "../../react-query/useCryptoBuyAnalyzer";
 
 const CryptoBuyAnalyzer = () => {
-    const { data: investments = [] } = useInvestments();
+    const { data: tokens = [] } = useCryptoBuyAnalyzer();
     const [loading, setLoading] = useState(false);
+    const [showAddForm, setShowAddForm] = useState(false);
     const [analyzedTokens, setAnalyzedTokens] = useState([]);
     
     // Mock market indices (todo: replace with real API calls later)
     const [fearGreedIndex, setFearGreedIndex] = useState(42); // 0-100
     const [altcoinIndex, setAltcoinIndex] = useState(68); // 0-100
 
+    const addMutation = useAddTokenToBuyAnalyzer();
+
+    const [formData, setFormData] = useState({
+        tokenName: '',
+        symbol: '',
+        allTimeLow: '',
+        allTimeHigh: '',
+        oneYearLow: '',
+        oneYearHigh: '',
+    });
+
 
     useEffect(() => {
-        if (investments.length > 0) {
+        if (tokens.length > 0) {
             updateAnalysis();
         }
-    }, [investments]);
+    }, [tokens]);
 
     const updateAnalysis = async () => {
-        if (investments.length === 0) return;
+        if (tokens.length === 0) return;
         setLoading(true);
 
         try {
-            // Get unique tokens from investments that have price index data
-            const tokensWithData = investments.filter(inv =>
+            const tokensWithData = tokens.filter(inv =>
                 inv.allTimeLow && inv.allTimeHigh && inv.symbol
             );
 
@@ -79,194 +91,270 @@ const CryptoBuyAnalyzer = () => {
         }
     };
 
+    // CREATE
+    const handleSubmit = async () => {
+        const { tokenName, symbol } = formData;
+        if (!tokenName || !symbol) {
+            return alert('Fill all required fields');
+        }
+
+        const allTimeLow = formData.allTimeLow ? parseFloat(formData.allTimeLow) : null;
+        const allTimeHigh = formData.allTimeHigh ? parseFloat(formData.allTimeHigh) : null;
+        const oneYearLow = formData.oneYearLow ? parseFloat(formData.oneYearLow) : null;
+        const oneYearHigh = formData.oneYearHigh ? parseFloat(formData.oneYearHigh) : null;
+
+        setLoading(true);
+
+        try {
+            const data = await fetchPrices([symbol]);
+            const currentPrice = data[symbol]?.usd;
+
+            if (!currentPrice) throw new Error('Invalid symbol');
+            const priceIndex = calculatePriceIndex(currentPrice, allTimeLow, allTimeHigh);
+            const oneYearPriceIndex = calculateOneYearPriceIndex(currentPrice, oneYearLow, oneYearHigh);
+
+            // ADD
+            const newToken = {
+                tokenName,
+                symbol: symbol.toLowerCase(),
+                allTimeLow,
+                allTimeHigh,
+                oneYearLow,
+                oneYearHigh,
+                currentPrice,
+                priceIndex,
+                oneYearPriceIndex,
+                lastUpdated: new Date().toLocaleTimeString(),
+            };
+
+            await addMutation.mutateAsync(newToken);
+
+            // clear form
+            setFormData({
+                tokenName: '',
+                symbol: '',
+                allTimeLow: '',
+                allTimeHigh: '',
+                oneYearLow: '',
+                oneYearHigh: '',
+            });
+            setShowAddForm(false);
+        } catch (err) {
+            alert('Could not add investment');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const fearGreedStatus = getFearGreedStatus(fearGreedIndex);
     const altcoinStatus = getAltcoinStatus(altcoinIndex);
 
     return (
-        <div className="crypto-tracker-container">
-            <div className="crypto-tracker-max-width">
-                {/* Header */}
-                <div className="crypto-tracker-card">
-                    <div className="crypto-tracker-header">
-                        <h1 className="crypto-tracker-title">
-                            <TrendingUp style={{ color: '#10b981' }} />
-                            Crypto Buy Analyzer
-                        </h1>
-                        <div className="crypto-tracker-button-group">
-                            <button
-                                onClick={updateAnalysis}
-                                disabled={loading || investments.length === 0}
-                                className="crypto-tracker-button crypto-tracker-button--primary"
-                            >
-                                <RefreshCw
-                                    style={{
-                                        width: '16px',
-                                        height: '16px',
-                                    }}
-                                    className={loading ? 'crypto-tracker-spinning' : ''}
-                                />
-                                Refresh Analysis
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Market Indices */}
-                    <div className="buy-analyzer-indices">
-                        <div className="buy-analyzer-index-card">
-                            <div className="buy-analyzer-index-header">
-                                <Eye size={20} style={{ color: fearGreedStatus.color }} />
-                                <span className="buy-analyzer-index-title">Fear & Greed Index</span>
-                            </div>
-                            <div className="buy-analyzer-index-value">
-                                <span className="buy-analyzer-index-number">{fearGreedIndex}</span>
-                                <div
-                                    className="buy-analyzer-index-status"
-                                    style={{
-                                        color: fearGreedStatus.color,
-                                        backgroundColor: fearGreedStatus.bgColor
-                                    }}
+        <>
+            <div className="crypto-tracker-container">
+                <div className="crypto-tracker-max-width">
+                    {/* Header */}
+                    <div className="crypto-tracker-card">
+                        <div className="crypto-tracker-header">
+                            <h1 className="crypto-tracker-title">
+                                <TrendingUp style={{ color: '#10b981' }} />
+                                Crypto Buy Analyzer
+                            </h1>
+                            <div className="crypto-tracker-button-group">
+                                <button
+                                    onClick={updateAnalysis}
+                                    disabled={loading || tokens.length === 0}
+                                    className="crypto-tracker-button crypto-tracker-button--primary"
                                 >
-                                    {fearGreedStatus.text}
+                                    <RefreshCw
+                                        style={{
+                                            width: '16px',
+                                            height: '16px',
+                                        }}
+                                        className={loading ? 'crypto-tracker-spinning' : ''}
+                                    />
+                                    Refresh Analysis
+                                </button>
+                                <button
+                                    onClick={() => setShowAddForm(!showAddForm)}
+                                    className="crypto-tracker-button crypto-tracker-button--success"
+                                >
+                                    <Plus style={{ width: '16px', height: '16px' }} />
+                                    Add Token
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Market Indices */}
+                        <div className="buy-analyzer-indices">
+                            <div className="buy-analyzer-index-card">
+                                <div className="buy-analyzer-index-header">
+                                    <Eye size={20} style={{ color: fearGreedStatus.color }} />
+                                    <span className="buy-analyzer-index-title">Fear & Greed Index</span>
+                                </div>
+                                <div className="buy-analyzer-index-value">
+                                    <span className="buy-analyzer-index-number">{fearGreedIndex}</span>
+                                    <div
+                                        className="buy-analyzer-index-status"
+                                        style={{
+                                            color: fearGreedStatus.color,
+                                            backgroundColor: fearGreedStatus.bgColor
+                                        }}
+                                    >
+                                        {fearGreedStatus.text}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="buy-analyzer-index-card">
+                                <div className="buy-analyzer-index-header">
+                                    <AlertTriangle size={20} style={{ color: altcoinStatus.color }} />
+                                    <span className="buy-analyzer-index-title">Altcoin Index</span>
+                                </div>
+                                <div className="buy-analyzer-index-value">
+                                    <span className="buy-analyzer-index-number">{altcoinIndex}</span>
+                                    <div
+                                        className="buy-analyzer-index-status"
+                                        style={{
+                                            color: altcoinStatus.color,
+                                            backgroundColor: altcoinStatus.bgColor
+                                        }}
+                                    >
+                                        {altcoinStatus.text}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div className="buy-analyzer-index-card">
-                            <div className="buy-analyzer-index-header">
-                                <AlertTriangle size={20} style={{ color: altcoinStatus.color }} />
-                                <span className="buy-analyzer-index-title">Altcoin Index</span>
-                            </div>
-                            <div className="buy-analyzer-index-value">
-                                <span className="buy-analyzer-index-number">{altcoinIndex}</span>
-                                <div
-                                    className="buy-analyzer-index-status"
-                                    style={{
-                                        color: altcoinStatus.color,
-                                        backgroundColor: altcoinStatus.bgColor
-                                    }}
-                                >
-                                    {altcoinStatus.text}
-                                </div>
-                            </div>
-                        </div>
                     </div>
-                </div>
 
-                {/* Analysis Table */}
-                <div className="crypto-tracker-card crypto-tracker-card--no-padding">
-                    <div className="crypto-tracker-table-container">
-                        <table className="crypto-tracker-table">
-                            <thead>
-                            <tr>
-                                <th className="crypto-tracker-table-header">Token</th>
-                                <th className="crypto-tracker-table-header crypto-tracker-table-header--right">Current Price</th>
-                                <th className="crypto-tracker-table-header crypto-tracker-table-header--center">PI</th>
-                                <th className="crypto-tracker-table-header crypto-tracker-table-header--center">1-Y PI</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {analyzedTokens.length === 0 ? (
+                    {/* Add Investment Form */}
+                    {showAddForm && (
+                        <AddTokenToBuyAnalyzerForm
+                            formData={formData}
+                            setFormData={setFormData}
+                            loading={loading}
+                            handleSubmit={handleSubmit}
+                            setShowAddForm={setShowAddForm}
+                        />
+                    )}
+
+                    {/* Analysis Table */}
+                    <div className="crypto-tracker-card crypto-tracker-card--no-padding">
+                        <div className="crypto-tracker-table-container">
+                            <table className="crypto-tracker-table">
+                                <thead>
                                 <tr>
-                                    <td colSpan="5" className="crypto-tracker-table-cell crypto-tracker-empty-state">
-                                        {investments.length === 0
-                                            ? "No investments found. Add investments with price index data to see buy analysis."
-                                            : "No tokens with sufficient price index data found. Please add All-time High/Low data to your investments."
-                                        }
-                                    </td>
+                                    <th className="crypto-tracker-table-header">Token</th>
+                                    <th className="crypto-tracker-table-header crypto-tracker-table-header--right">Current Price</th>
+                                    <th className="crypto-tracker-table-header crypto-tracker-table-header--center">PI</th>
+                                    <th className="crypto-tracker-table-header crypto-tracker-table-header--center">1-Y PI</th>
                                 </tr>
-                            ) : (
-                                analyzedTokens.map(token => (
-                                    <tr key={token.id} className="crypto-tracker-table-row">
-                                        <td className="crypto-tracker-table-cell">
-                                            <div className="crypto-tracker-token-info">
-                                                <div className="crypto-tracker-token-name">{token.tokenName}</div>
-                                                <div className="crypto-tracker-token-symbol">{token.symbol}</div>
-                                            </div>
-                                        </td>
-                                        <td className="crypto-tracker-table-cell crypto-tracker-table-cell--right crypto-tracker-table-cell--bold">
-                                            ${token.currentPrice.toFixed(2)}
-                                        </td>
-                                        <td className="crypto-tracker-table-cell crypto-tracker-table-cell--center">
-                                            {token.piBuySignal ? (
-                                                <div
-                                                    className="buy-analyzer-signal"
-                                                    style={{
-                                                        color: token.piBuySignal.color,
-                                                        backgroundColor: `${token.piBuySignal.color}15`,
-                                                        border: `1px solid ${token.piBuySignal.color}30`
-                                                    }}
-                                                    title={`${(token.priceIndex * 100).toFixed(1)}%`}
-                                                >
-                                                    {token.priceIndex !== null ?
-                                                        `${(token.priceIndex * 100).toFixed(1)}%` :
-                                                        '—'
-                                                    }
-                                                    {" "}
-                                                    {token.piBuySignal.text}
-                                                </div>
-                                            ) : '—'}
-                                        </td>
-
-                                        <td className="crypto-tracker-table-cell crypto-tracker-table-cell--center">
-                                            {token.oneYearPiBuySignal ? (
-                                                <div
-                                                    className="buy-analyzer-signal"
-                                                    style={{
-                                                        color: token.oneYearPiBuySignal.color,
-                                                        backgroundColor: `${token.oneYearPiBuySignal.color}15`,
-                                                        border: `1px solid ${token.oneYearPiBuySignal.color}30`
-                                                    }}
-                                                    title={`${(token.oneYearPriceIndex * 100).toFixed(1)}%`}
-                                                >
-                                                    {token.oneYearPriceIndex !== null ?
-                                                        `${(token.oneYearPriceIndex * 100).toFixed(1)}%` :
-                                                        '—'
-                                                    }
-                                                    {" "}
-                                                    {token.oneYearPiBuySignal.text}
-                                                </div>
-                                            ) : '—'}
+                                </thead>
+                                <tbody>
+                                {analyzedTokens.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="crypto-tracker-table-cell crypto-tracker-empty-state">
+                                            {tokens.length === 0
+                                                ? "No tokens found. Add tokens data to see buy analysis."
+                                                : "No tokens with sufficient price index data found. Please add All-time High/Low data to your tokens."
+                                            }
                                         </td>
                                     </tr>
-                                ))
-                            )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                                ) : (
+                                    analyzedTokens.map(token => (
+                                        <tr key={token.id} className="crypto-tracker-table-row">
+                                            <td className="crypto-tracker-table-cell">
+                                                <div className="crypto-tracker-token-info">
+                                                    <div className="crypto-tracker-token-name">{token.tokenName}</div>
+                                                    <div className="crypto-tracker-token-symbol">{token.symbol}</div>
+                                                </div>
+                                            </td>
+                                            <td className="crypto-tracker-table-cell crypto-tracker-table-cell--right crypto-tracker-table-cell--bold">
+                                                ${token.currentPrice.toFixed(2)}
+                                            </td>
+                                            <td className="crypto-tracker-table-cell crypto-tracker-table-cell--center">
+                                                {token.piBuySignal ? (
+                                                    <div
+                                                        className="buy-analyzer-signal"
+                                                        style={{
+                                                            color: token.piBuySignal.color,
+                                                            backgroundColor: `${token.piBuySignal.color}15`,
+                                                            border: `1px solid ${token.piBuySignal.color}30`
+                                                        }}
+                                                        title={`${(token.priceIndex * 100).toFixed(1)}%`}
+                                                    >
+                                                        {token.priceIndex !== null ?
+                                                            `${(token.priceIndex * 100).toFixed(1)}%` :
+                                                            '—'
+                                                        }
+                                                        {" "}
+                                                        {token.piBuySignal.text}
+                                                    </div>
+                                                ) : '—'}
+                                            </td>
 
-                {/* Analysis Legend */}
-                <div className="crypto-tracker-card">
-                    <h3 style={{ marginBottom: '12px', color: '#cbd5e1' }}>Buy Signal Legend</h3>
-                    <div className="buy-analyzer-legend">
-                        <div className="buy-analyzer-legend-item">
-                            <div className="buy-analyzer-signal" style={{ color: '#10b981', backgroundColor: '#10b98115', border: '1px solid #10b98130' }}>
-                                Strong Buy
-                            </div>
-                            <span>Price Index ≤ 20% - Excellent entry point</span>
+                                            <td className="crypto-tracker-table-cell crypto-tracker-table-cell--center">
+                                                {token.oneYearPiBuySignal ? (
+                                                    <div
+                                                        className="buy-analyzer-signal"
+                                                        style={{
+                                                            color: token.oneYearPiBuySignal.color,
+                                                            backgroundColor: `${token.oneYearPiBuySignal.color}15`,
+                                                            border: `1px solid ${token.oneYearPiBuySignal.color}30`
+                                                        }}
+                                                        title={`${(token.oneYearPriceIndex * 100).toFixed(1)}%`}
+                                                    >
+                                                        {token.oneYearPriceIndex !== null ?
+                                                            `${(token.oneYearPriceIndex * 100).toFixed(1)}%` :
+                                                            '—'
+                                                        }
+                                                        {" "}
+                                                        {token.oneYearPiBuySignal.text}
+                                                    </div>
+                                                ) : '—'}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                                </tbody>
+                            </table>
                         </div>
-                        <div className="buy-analyzer-legend-item">
-                            <div className="buy-analyzer-signal" style={{ color: '#34d399', backgroundColor: '#34d39915', border: '1px solid #34d39930' }}>
-                                Buy
+                    </div>
+
+                    {/* Analysis Legend */}
+                    <div className="crypto-tracker-card">
+                        <h3 style={{ marginBottom: '12px', color: '#cbd5e1' }}>Buy Signal Legend</h3>
+                        <div className="buy-analyzer-legend">
+                            <div className="buy-analyzer-legend-item">
+                                <div className="buy-analyzer-signal" style={{ color: '#10b981', backgroundColor: '#10b98115', border: '1px solid #10b98130' }}>
+                                    Strong Buy
+                                </div>
+                                <span>Price Index ≤ 20% - Excellent entry point</span>
                             </div>
-                            <span>Price Index 21-40% - Good entry point</span>
-                        </div>
-                        <div className="buy-analyzer-legend-item">
-                            <div className="buy-analyzer-signal" style={{ color: '#f59e0b', backgroundColor: '#f59e0b15', border: '1px solid #f59e0b30' }}>
-                                Caution
+                            <div className="buy-analyzer-legend-item">
+                                <div className="buy-analyzer-signal" style={{ color: '#34d399', backgroundColor: '#34d39915', border: '1px solid #34d39930' }}>
+                                    Buy
+                                </div>
+                                <span>Price Index 21-40% - Good entry point</span>
                             </div>
-                            <span>Price Index 41-60% - High risk entry</span>
-                        </div>
-                        <div className="buy-analyzer-legend-item">
-                            <div className="buy-analyzer-signal" style={{ color: '#ef4444', backgroundColor: '#ef444415', border: '1px solid #ef444430' }}>
-                                Avoid
+                            <div className="buy-analyzer-legend-item">
+                                <div className="buy-analyzer-signal" style={{ color: '#f59e0b', backgroundColor: '#f59e0b15', border: '1px solid #f59e0b30' }}>
+                                    Caution
+                                </div>
+                                <span>Price Index 41-60% - High risk entry</span>
                             </div>
-                            <span>Price Index > 60% - Avoid entry</span>
+                            <div className="buy-analyzer-legend-item">
+                                <div className="buy-analyzer-signal" style={{ color: '#ef4444', backgroundColor: '#ef444415', border: '1px solid #ef444430' }}>
+                                    Avoid
+                                </div>
+                                <span>Price Index > 60% - Avoid entry</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

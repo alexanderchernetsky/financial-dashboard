@@ -285,14 +285,6 @@ const FinancialDashboard = () => {
                     Financial Portfolio Dashboard
                 </Typography>
 
-                <Button variant="contained" color="primary" onClick={() => navigate('/crypto')} style={{ marginBottom: '16px' }}>
-                    Go to Crypto Tracker
-                </Button>
-
-                {/*<Button variant="contained" color="primary" onClick={() => navigate('/etf')} style={{ marginBottom: '16px', 'margin-left': '16px' }}>*/}
-                {/*    Go to ETF Tracker*/}
-                {/*</Button>*/}
-
                 {/* Show loading indicator when fetching */}
                 {isFetching && (
                     <Box

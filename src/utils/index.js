@@ -48,19 +48,3 @@ export const processPortfolioData = portfolioData => {
 
     return data;
 };
-
-export const processCryptoTrackerData = cryptoTrackerData => {
-    if (!cryptoTrackerData.length) return [];
-
-    // First sort alphabetically by tokenName
-    const alphabeticallySorted = [...cryptoTrackerData].sort((a, b) =>
-        a.tokenName.localeCompare(b.tokenName)
-    );
-
-    // Next sort by date
-    const data = [...alphabeticallySorted].sort((a, b) => {
-        return parseDate(b.dateAdded) - parseDate(a.dateAdded);
-    });
-
-    return data;
-}

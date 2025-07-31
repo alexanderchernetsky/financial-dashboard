@@ -24,10 +24,6 @@ export const AddCryptoInvestmentForm = ({
                 sold: '',
                 closePrice: '',
                 notes: '',
-                allTimeLow: '',
-                allTimeHigh: '',
-                oneYearLow: '',
-                oneYearHigh: '',
             });
         }
         setShowAddForm(false);
@@ -96,50 +92,6 @@ export const AddCryptoInvestmentForm = ({
                         value={formData.amountPaid}
                         onChange={e => setFormData({ ...formData, amountPaid: e.target.value })}
                         placeholder="Auto-calculated"
-                        className="input"
-                    />
-                </div>
-                <div className="formGroup">
-                    <label className="label">All-Time Low</label>
-                    <input
-                        type="number"
-                        step="any"
-                        value={formData.allTimeLow || ''}
-                        onChange={e => setFormData({ ...formData, allTimeLow: e.target.value })}
-                        placeholder="0.00"
-                        className="input"
-                    />
-                </div>
-                <div className="formGroup">
-                    <label className="label">All-Time High</label>
-                    <input
-                        type="number"
-                        step="any"
-                        value={formData.allTimeHigh || ''}
-                        onChange={e => setFormData({ ...formData, allTimeHigh: e.target.value })}
-                        placeholder="0.00"
-                        className="input"
-                    />
-                </div>
-                <div className="formGroup">
-                    <label className="label">1-Year Low</label>
-                    <input
-                        type="number"
-                        step="any"
-                        value={formData.oneYearLow || ''}
-                        onChange={e => setFormData({ ...formData, oneYearLow: e.target.value })}
-                        placeholder="0.00"
-                        className="input"
-                    />
-                </div>
-                <div className="formGroup">
-                    <label className="label">1-Year High</label>
-                    <input
-                        type="number"
-                        step="any"
-                        value={formData.oneYearHigh || ''}
-                        onChange={e => setFormData({ ...formData, oneYearHigh: e.target.value })}
-                        placeholder="0.00"
                         className="input"
                     />
                 </div>

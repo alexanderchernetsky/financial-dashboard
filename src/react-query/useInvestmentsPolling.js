@@ -15,7 +15,7 @@ export const useInvestmentsPolling = () => {
                 ...doc.data(),
             }));
         },
-        refetchInterval: 30000, // Poll every 30 seconds
-        staleTime: 25000, // Consider data stale after 25 seconds
+        refetchInterval: 600000, // Poll every 10 minutes
+        staleTime: 300000,       // Consider data stale after 5 minutes
     });
 };
